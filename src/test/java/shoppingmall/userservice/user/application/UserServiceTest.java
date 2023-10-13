@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
+import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
+import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
@@ -19,7 +21,6 @@ import shoppingmall.userservice.user.domain.User;
 import shoppingmall.userservice.user.domain.UserGrade;
 import shoppingmall.userservice.user.domain.UserRepository;
 import shoppingmall.userservice.user.presentation.request.UserEditRequest;
-import shoppingmall.userservice.user.presentation.response.FindPwResponse;
 
 @Transactional
 @SpringBootTest
@@ -33,7 +34,7 @@ class UserServiceTest {
 
     LocalDateTime signUpDate = LocalDateTime.of(2023, 5, 4, 12, 30, 11);
 
-    @DisplayName("회원을 등록한다.")
+    @DisplayName("회원가입을 한다.")
     @Test
     void save_user() {
         // given
@@ -104,8 +105,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호 찾기")
-    void findPw(){
+    @DisplayName("비밀번호 재발급을 위해 회원정보를 조회한다.")
+    void find_pw(){
         // given
         SignUpRequestDto signUpRequestDto = new SignUpRequestDto(
                 "테스터", "tester@test.com", "a", "a",
@@ -114,15 +115,17 @@ class UserServiceTest {
         userService.signUp(signUpRequestDto);
 
         // when
-        FindPwResponse response = userService.findPw("테스터", "010-2222-3333", "tester@test.com");
+        FindPwRequestDto findPwRequestDto = new FindPwRequestDto("테스터", "010-2222-3333", "tester@test.com");
+        FindPwResponseDto findPwResponseDto = userService.findPw(findPwRequestDto);
 
         // then
-        assertThat(response.getEmail()).isEqualTo("tester@test.com");
+        assertThat(findPwResponseDto.getUserId()).isNotNull();
+        assertThat(findPwResponseDto.getEmail()).isEqualTo("tester@test.com");
     }
 
     @Test
     @DisplayName("사용자 정보를 변경한다.")
-    void editUserTest() {
+    void edit_user() {
         // given
         User user = userRepository.save(new User("사용자1", "user1@test.com", "user1!", "010-1111-2222"));
 

@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
+import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
+import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
@@ -12,12 +14,11 @@ import shoppingmall.userservice.user.domain.User;
 import shoppingmall.userservice.user.domain.UserFinder;
 import shoppingmall.userservice.user.domain.UserRepository;
 import shoppingmall.userservice.user.presentation.request.UserEditRequest;
-import shoppingmall.userservice.user.presentation.response.FindPwResponse;
 import shoppingmall.userservice.user.utils.MaskingUtil;
 
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -47,9 +48,13 @@ public class UserService {
         return FindEmailResultDto.of(maskingEmail);
     }
 
-    public FindPwResponse findPw(String name, String telNo, String email) {
-        User user = userFinder.findUserOf(name, telNo, email);
-        return FindPwResponse.of(user);
+    public FindPwResponseDto findPw(FindPwRequestDto findPwRequestDto) {
+        User user = userFinder.findUserOf(
+                findPwRequestDto.getName(),
+                findPwRequestDto.getTelNo(),
+                findPwRequestDto.getEmail()
+        );
+        return FindPwResponseDto.of(user);
     }
 
     @Transactional

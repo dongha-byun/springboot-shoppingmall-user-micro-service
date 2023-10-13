@@ -3,7 +3,7 @@ package shoppingmall.userservice.user.presentation.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import shoppingmall.userservice.user.domain.User;
+import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 
 @Getter
 @NoArgsConstructor
@@ -15,7 +15,9 @@ public class FindPwResponse {
     private String telNo;
     private String email;
 
-    public static FindPwResponse of(User user){
-        return new FindPwResponse(user.getId(), user.getUserName(), user.telNo(), user.getEmail());
+    public static FindPwResponse of(FindPwResponseDto dto) {
+        return new FindPwResponse(
+                dto.getUserId(), dto.getName(), dto.getTelNo(), dto.getEmail()
+        );
     }
 }

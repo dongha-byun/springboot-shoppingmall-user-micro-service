@@ -4,6 +4,7 @@ import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
+import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
+import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
@@ -38,23 +41,26 @@ public class UserController {
         return ResponseEntity.created(URI.create("/user/"+response.getId())).body(response);
     }
 
-    @GetMapping("/find-email")
+    @PostMapping("/find-email")
     public ResponseEntity<FindEmailResultResponse> findEmail(@RequestBody FindEmailRequest findEmailRequest){
         FindEmailRequestDto findEmailRequestDto = findEmailRequest.toDto();
         FindEmailResultDto resultDto = userService.findEmail(findEmailRequestDto);
+        FindEmailResultResponse response = FindEmailResultResponse.of(resultDto);
 
-        return ResponseEntity.ok().body(FindEmailResultResponse.of(resultDto));
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/find-pw")
+    @PostMapping("/find-pw")
     public ResponseEntity<FindPwResponse> findPw(@RequestBody FindPwRequest findPwRequest){
-        FindPwResponse response =
-                userService.findPw(findPwRequest.getName(), findPwRequest.getTelNo(), findPwRequest.getEmail());
+        FindPwRequestDto findPwRequestDto = findPwRequest.toDto();
+        FindPwResponseDto findPwResponseDto = userService.findPw(findPwRequestDto);
+        FindPwResponse response = FindPwResponse.of(findPwResponseDto);
+
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserResponse> findUser(Authentication authentication){
+    public ResponseEntity<UserResponse> findUser(@AuthenticationPrincipal Authentication authentication){
         String userId = authentication.getName();
         UserDto dto = userService.findUser(Long.parseLong(userId));
         UserResponse response = UserResponse.of(dto);
@@ -76,6 +82,7 @@ public class UserController {
     public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(Authentication authentication) {
         String userId = authentication.getName();
         UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(Long.parseLong(userId));
-        return ResponseEntity.ok().body(UserGradeInfoResponse.to(userGradeInfo));
+        UserGradeInfoResponse response = UserGradeInfoResponse.to(userGradeInfo);
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,10 +1,12 @@
 package shoppingmall.userservice.user.presentation;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,7 +26,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import shoppingmall.userservice.user.application.UserService;
+import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
+import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
+import shoppingmall.userservice.user.presentation.request.FindEmailRequest;
+import shoppingmall.userservice.user.presentation.request.FindPwRequest;
 import shoppingmall.userservice.user.presentation.request.SignUpRequest;
 
 @WebMvcTest(controllers = UserController.class)
@@ -99,5 +105,81 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is("이미 가입된 정보가 있습니다.")));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("가입한 이메일 정보를 조회한다.")
+    void find_email() throws Exception {
+        // given
+        FindEmailRequest findEmailRequest = new FindEmailRequest(
+                "신규 가입자", "010-2222-3333"
+        );
+        String content = objectMapper.writeValueAsString(findEmailRequest);
+
+        when(userService.findEmail(any())).thenReturn(
+                new FindEmailResultDto("ne*@test.com")
+        );
+
+        // when & then
+        mockMvc.perform(post("/find-email")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("email", is("ne*@test.com")));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("비밀번호를 잃어버렸을 때, 재발급을 위해 회원정보를 확인한다.")
+    void find_pw() throws Exception {
+        // given
+        FindPwRequest findPwRequest = new FindPwRequest(
+                "신규 사용자", "010-1234-2345", "newUser@test.com"
+        );
+        String content = objectMapper.writeValueAsString(findPwRequest);
+
+        when(userService.findPw(any())).thenReturn(
+                new FindPwResponseDto(
+                        10L, "신규 사용자",
+                        "010-1234-2345", "newUser@test.com"
+                )
+        );
+
+        // when & then
+        mockMvc.perform(post("/find-pw")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("userId", is(10)));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("사용자가 자신의 회원정보를 조회한다.")
+    void find_user() throws Exception {
+        // given
+        when(userService.findUser(any())).thenReturn(
+                new UserDto(
+                        100L, "사용자 100",
+                        "user100@test.com", "010-1234-2345",
+                        LocalDateTime.of(2022, 12, 22, 11, 34, 19)
+                )
+        );
+
+        // when & then
+        mockMvc.perform(get("/user")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("signUpDate", is("2022-12-22")));
     }
 }
