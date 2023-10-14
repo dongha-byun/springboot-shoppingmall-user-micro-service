@@ -1,6 +1,7 @@
 package shoppingmall.userservice.user.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
@@ -24,12 +25,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserFinder userFinder;
     private final SignUpValidator signUpValidator;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
     public UserDto signUp(SignUpRequestDto signUpRequestDto){
         signUpValidator.validateSignUp(signUpRequestDto);
+        String plainPassword = signUpRequestDto.getPassword();
+        signUpRequestDto.setPassword(passwordEncoder.encode(plainPassword));
 
-        User user = userRepository.save(signUpRequestDto.toEntity());
+        User user = signUpRequestDto.toEntity();
+        userRepository.save(user);
+
         return UserDto.of(user);
     }
 

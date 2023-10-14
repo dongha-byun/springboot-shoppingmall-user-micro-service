@@ -4,11 +4,13 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import shoppingmall.userservice.user.domain.User;
 
 @Builder
 @AllArgsConstructor
 @Getter
+@Setter
 public class SignUpRequestDto {
     private String name;
     private String email;

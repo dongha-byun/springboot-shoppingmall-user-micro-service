@@ -57,6 +57,23 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("회원정보 저장 시, 패스워드는 암호화해서 저장한다.")
+    void password_encrypt() {
+        // given
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto(
+                "테스터", "tester@test.com", "a", "a",
+                "010-2222-3333", signUpDate
+        );
+
+        // when
+        UserDto userDto = userService.signUp(signUpRequestDto);
+
+        // then
+        User user = userRepository.findById(userDto.getId()).orElseThrow();
+        assertThat(user.getPassword()).isNotEqualTo("a");
+    }
+
+    @Test
     @DisplayName("이미 가입이 된 이메일 정보로는 가입할 수 없다.")
     void duplicate_email_fail() {
         // given
