@@ -4,10 +4,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,9 +31,12 @@ import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
+import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
+import shoppingmall.userservice.user.domain.UserGrade;
 import shoppingmall.userservice.user.presentation.request.FindEmailRequest;
 import shoppingmall.userservice.user.presentation.request.FindPwRequest;
 import shoppingmall.userservice.user.presentation.request.SignUpRequest;
+import shoppingmall.userservice.user.presentation.request.UserEditRequest;
 
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
@@ -161,7 +166,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "100", roles = "USER")
     @DisplayName("사용자가 자신의 회원정보를 조회한다.")
     void find_user() throws Exception {
         // given
@@ -179,7 +184,60 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", notNullValue()))
+                .andExpect(jsonPath("id", is(100)))
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")));
+    }
+
+    @Test
+    @WithMockUser(username = "1000", roles = "USER")
+    @DisplayName("로그인한 사용자가 자신의 회원정보를 수정한다.")
+    void update_user() throws Exception {
+        // given
+        UserEditRequest userEditRequest = new UserEditRequest("testPassword", "010-2345-3456");
+        String content = objectMapper.writeValueAsString(userEditRequest);
+        when(userService.editUser(any(), any())).thenReturn(
+                new UserDto(
+                        1000L, "사용자 100",
+                        "user100@test.com", "010-2345-3456",
+                        LocalDateTime.of(2022, 12, 22, 11, 34, 19)
+                )
+        );
+
+        // when & then
+        mockMvc.perform(put("/user")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(1000)))
+                .andExpect(jsonPath("signUpDate", is("2022-12-22")));
+    }
+
+    @Test
+    @WithMockUser(username = "1000", roles = "USER")
+    @DisplayName("로그인 사용자가 자신의 등급정보를 조회한다.")
+    void find_user_grade_info() throws Exception {
+        // given
+        when(userService.getUserGradeInfo(any())).thenReturn(
+                new UserGradeInfoDto(
+                        1000L, "사용자 1000",
+                        LocalDateTime.of(2022, 12, 22, 0, 0, 0),
+                        UserGrade.REGULAR, UserGrade.VIP,
+                        50, 10000
+                )
+        );
+
+        // when & then
+        mockMvc.perform(get("/user/grade-info")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("userId", is(1000)))
+                .andExpect(jsonPath("userName", is("사용자 1000")))
+                .andExpect(jsonPath("signUpDate", is("2022-12-22")))
+                .andExpect(jsonPath("currentUserGrade", is("단골회원")))
+                .andExpect(jsonPath("nextUserGrade", is("VIP")));
     }
 }
