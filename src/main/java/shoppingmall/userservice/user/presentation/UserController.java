@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,29 +59,26 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<UserResponse> findUser(Authentication authentication){
-        String userId = authentication.getName();
-        UserDto dto = userService.findUser(Long.parseLong(userId));
+    @GetMapping("/user/{id}")
+    public ResponseEntity<UserResponse> findUser(@PathVariable("id") Long userId){
+        UserDto dto = userService.findUser(userId);
         UserResponse response = UserResponse.of(dto);
 
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/user")
-    public ResponseEntity<UserResponse> updateUser(Authentication authentication,
+    @PutMapping("/user/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable("id") Long userId,
                                                    @RequestBody UserEditRequest userRequest){
-        String userId = authentication.getName();
-        UserDto userDto = userService.editUser(Long.parseLong(userId), userRequest);
+        UserDto userDto = userService.editUser(userId, userRequest);
         UserResponse response = UserResponse.of(userDto);
 
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/user/grade-info")
-    public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(Authentication authentication) {
-        String userId = authentication.getName();
-        UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(Long.parseLong(userId));
+    @GetMapping("/user/{id}/grade-info")
+    public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(@PathVariable("id") Long userId) {
+        UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(userId);
         UserGradeInfoResponse response = UserGradeInfoResponse.to(userGradeInfo);
         return ResponseEntity.ok(response);
     }

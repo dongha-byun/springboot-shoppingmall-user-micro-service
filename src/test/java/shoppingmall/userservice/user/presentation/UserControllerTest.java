@@ -1,30 +1,35 @@
 package shoppingmall.userservice.user.presentation;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
@@ -36,12 +41,13 @@ import shoppingmall.userservice.user.presentation.request.FindPwRequest;
 import shoppingmall.userservice.user.presentation.request.SignUpRequest;
 import shoppingmall.userservice.user.presentation.request.UserEditRequest;
 
-@WebMvcTest(controllers = UserController.class)
-class UserControllerTest {
-    MockMvc mockMvc;
-
+@SpringBootTest
+@AutoConfigureMockMvc
+@AutoConfigureRestDocs(uriScheme = "https", uriHost = "api.shopping.mall", uriPort = 443)
+@ExtendWith(RestDocumentationExtension.class)
+public class UserControllerTest {
     @Autowired
-    WebApplicationContext webApplicationContext;
+    MockMvc mockMvc;
 
     @MockBean
     UserService userService;
@@ -49,16 +55,7 @@ class UserControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .apply(springSecurity())
-                .build();
-    }
-
     @Test
-    @WithMockUser
     @DisplayName("사용자가 회원가입에 성공한다.")
     void sign_up() throws Exception {
         // given
@@ -68,26 +65,41 @@ class UserControllerTest {
         String content = objectMapper.writeValueAsString(signUpRequest);
 
         when(userService.signUp(any())).thenReturn(
-               UserDto.builder()
-                       .id(1L)
-                       .name("신규 가입자")
-                       .email("new@test.com")
-                       .signUpDate(LocalDateTime.of(2023, 8, 25, 12, 1, 2))
-                       .build()
+                UserDto.builder()
+                        .id(1L)
+                        .name("신규 가입자")
+                        .email("new@test.com")
+                        .telNo("010-1234-1234")
+                        .signUpDate(LocalDateTime.of(2023, 8, 25, 12, 1, 2))
+                        .build()
         );
 
         // when & then
         mockMvc.perform(post("/sign-up")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("name", is("신규 가입자")));
+                .andExpect(jsonPath("name", is("신규 가입자")))
+                .andDo(document("signUp",
+                        requestFields(
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("가입 이메일"),
+                                fieldWithPath("password").description("비밀번호"),
+                                fieldWithPath("confirmPassword").description("비밀번호 확인"),
+                                fieldWithPath("telNo").description("연락처")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 고유 ID"),
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("가입 이메일"),
+                                fieldWithPath("telNo").description("가입 연락처"),
+                                fieldWithPath("signUpDate").description("가입일자")
+                        )
+                ));
     }
 
     @Test
-    @WithMockUser
     @DisplayName("이미 가입된 이메일 정보로는 가입할 수 없다.")
     void sign_up_fail_with_duplicate_email() throws Exception {
         // given
@@ -102,16 +114,16 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/sign-up")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is("이미 가입된 정보가 있습니다.")));
+                .andExpect(jsonPath("message", is("이미 가입된 정보가 있습니다.")))
+                .andDo(document("signUp_fail_duplicate_email"))
+        ;
     }
 
     @Test
-    @WithMockUser
     @DisplayName("가입한 이메일 정보를 조회한다.")
     void find_email() throws Exception {
         // given
@@ -126,17 +138,17 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/find-email")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("email", is("ne*@test.com")));
+                .andExpect(jsonPath("email", is("ne*@test.com")))
+                .andDo(document("find_email"))
+        ;
     }
 
     @Test
-    @WithMockUser
     @DisplayName("비밀번호를 잃어버렸을 때, 재발급을 위해 회원정보를 확인한다.")
     void find_pw() throws Exception {
         // given
@@ -154,17 +166,17 @@ class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/find-pw")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("userId", is(10)));
+                .andExpect(jsonPath("userId", is(10)))
+                .andDo(document("find_pw"))
+        ;
     }
 
     @Test
-    @WithMockUser(username = "100", roles = "USER")
     @DisplayName("사용자가 자신의 회원정보를 조회한다.")
     void find_user() throws Exception {
         // given
@@ -177,17 +189,28 @@ class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(get("/user")
-                        .with(csrf())
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/user/{userId}", 100L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(100)))
-                .andExpect(jsonPath("signUpDate", is("2022-12-22")));
+                .andExpect(jsonPath("signUpDate", is("2022-12-22")))
+                .andDo(document("find_user",
+                        pathParameters(
+                                parameterWithName("userId").description("사용자 고유 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 고유 ID"),
+                                fieldWithPath("name").description("사용자 이름"),
+                                fieldWithPath("email").description("사용자 Email"),
+                                fieldWithPath("telNo").description("사용자 연락처"),
+                                fieldWithPath("signUpDate").description("회원가입 일자")
+                        )
+                ))
+        ;
     }
 
     @Test
-    @WithMockUser(username = "1000", roles = "USER")
     @DisplayName("로그인한 사용자가 자신의 회원정보를 수정한다.")
     void update_user() throws Exception {
         // given
@@ -202,18 +225,18 @@ class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(put("/user")
-                        .with(csrf())
+        mockMvc.perform(put("/user/{id}", 1000L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(1000)))
-                .andExpect(jsonPath("signUpDate", is("2022-12-22")));
+                .andExpect(jsonPath("signUpDate", is("2022-12-22")))
+                .andDo(document("update_user"))
+        ;
     }
 
     @Test
-    @WithMockUser(username = "1000", roles = "USER")
     @DisplayName("로그인 사용자가 자신의 등급정보를 조회한다.")
     void find_user_grade_info() throws Exception {
         // given
@@ -227,8 +250,7 @@ class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(get("/user/grade-info")
-                        .with(csrf())
+        mockMvc.perform(get("/user/{id}/grade-info", 1000L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -236,6 +258,8 @@ class UserControllerTest {
                 .andExpect(jsonPath("userName", is("사용자 1000")))
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")))
                 .andExpect(jsonPath("currentUserGrade", is("단골회원")))
-                .andExpect(jsonPath("nextUserGrade", is("VIP")));
+                .andExpect(jsonPath("nextUserGrade", is("VIP")))
+                .andDo(document("find_user_grade_info"))
+        ;
     }
 }
