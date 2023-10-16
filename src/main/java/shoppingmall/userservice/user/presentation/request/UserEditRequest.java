@@ -3,7 +3,7 @@ package shoppingmall.userservice.user.presentation.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import shoppingmall.userservice.user.domain.User;
+import shoppingmall.userservice.user.application.dto.UserEditDto;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,7 +12,9 @@ public class UserEditRequest {
     private String password;
     private String telNo;
 
-    public static User to(UserEditRequest userEditRequest) {
-        return new User(null, null, userEditRequest.getPassword(), userEditRequest.getTelNo());
+    public UserEditDto toDto() {
+        return new UserEditDto(
+                password, telNo
+        );
     }
 }

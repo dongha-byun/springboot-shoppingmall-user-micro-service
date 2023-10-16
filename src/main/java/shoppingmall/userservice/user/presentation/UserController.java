@@ -3,7 +3,6 @@ package shoppingmall.userservice.user.presentation;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +16,7 @@ import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
+import shoppingmall.userservice.user.application.dto.UserEditDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
 import shoppingmall.userservice.user.presentation.request.FindEmailRequest;
 import shoppingmall.userservice.user.presentation.request.FindPwRequest;
@@ -70,7 +70,8 @@ public class UserController {
     @PutMapping("/user/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable("id") Long userId,
                                                    @RequestBody UserEditRequest userRequest){
-        UserDto userDto = userService.editUser(userId, userRequest);
+        UserEditDto userEditDto = userRequest.toDto();
+        UserDto userDto = userService.editUser(userId, userEditDto);
         UserResponse response = UserResponse.of(userDto);
 
         return ResponseEntity.ok(response);

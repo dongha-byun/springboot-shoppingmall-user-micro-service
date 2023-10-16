@@ -16,11 +16,11 @@ import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
+import shoppingmall.userservice.user.application.dto.UserEditDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
 import shoppingmall.userservice.user.domain.User;
 import shoppingmall.userservice.user.domain.UserGrade;
 import shoppingmall.userservice.user.domain.UserRepository;
-import shoppingmall.userservice.user.presentation.request.UserEditRequest;
 
 @Transactional
 @SpringBootTest
@@ -147,8 +147,8 @@ class UserServiceTest {
         User user = userRepository.save(new User("사용자1", "user1@test.com", "user1!", "010-1111-2222"));
 
         // when
-        UserEditRequest userEditRequest = new UserEditRequest("user2@", "010-2222-4444");
-        userService.editUser(user.getId(), userEditRequest);
+        UserEditDto userEditDto = new UserEditDto("user2@", "010-2222-4444");
+        userService.editUser(user.getId(), userEditDto);
 
         // then
         User findUser = userRepository.findById(user.getId()).orElseThrow();

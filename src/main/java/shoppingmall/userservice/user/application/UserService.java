@@ -10,11 +10,11 @@ import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
+import shoppingmall.userservice.user.application.dto.UserEditDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
 import shoppingmall.userservice.user.domain.User;
 import shoppingmall.userservice.user.domain.UserFinder;
 import shoppingmall.userservice.user.domain.UserRepository;
-import shoppingmall.userservice.user.presentation.request.UserEditRequest;
 import shoppingmall.userservice.user.utils.MaskingUtil;
 
 @RequiredArgsConstructor
@@ -64,9 +64,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto editUser(Long userId, UserEditRequest userEditRequest) {
+    public UserDto editUser(Long userId, UserEditDto userEditDto) {
         User user = userFinder.findUserById(userId);
-        user.updateUser(userEditRequest.getTelNo(), userEditRequest.getPassword());
+        user.updateUser(userEditDto.getTelNo(), userEditDto.getPassword());
 
         return UserDto.of(user);
     }
