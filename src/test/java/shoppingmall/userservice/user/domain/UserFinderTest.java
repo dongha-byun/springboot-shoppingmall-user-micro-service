@@ -35,13 +35,13 @@ class UserFinderTest {
     }
 
     @Test
-    @DisplayName("로그인 아이디로 회원 조회")
+    @DisplayName("이메일로 회원 조회")
     void find_user_by_login_id() {
         // given
         User saveUser = userRepository.save(new User("임시사용자1", "tempUser1", "tempUser1!", "010-1234-1234"));
 
         // when
-        User findUser = userFinder.findUserByLoginId(saveUser.getEmail());
+        User findUser = userFinder.findUserByEmail(saveUser.getEmail());
 
         // then
         assertThat(findUser).isEqualTo(saveUser);

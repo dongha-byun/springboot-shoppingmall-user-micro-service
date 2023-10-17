@@ -8,6 +8,7 @@ import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
+import shoppingmall.userservice.user.application.dto.LoginUserDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserEditDto;
@@ -74,5 +75,10 @@ public class UserService {
     public UserGradeInfoDto getUserGradeInfo(Long userId) {
         User user = userFinder.findUserById(userId);
         return UserGradeInfoDto.of(user);
+    }
+
+    public LoginUserDto findUserForLogin(String email) {
+        User user = userFinder.findUserByEmail(email);
+        return LoginUserDto.of(user);
     }
 }

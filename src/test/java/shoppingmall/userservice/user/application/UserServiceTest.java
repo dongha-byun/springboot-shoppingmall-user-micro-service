@@ -14,6 +14,7 @@ import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
+import shoppingmall.userservice.user.application.dto.LoginUserDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserEditDto;
@@ -181,5 +182,25 @@ class UserServiceTest {
         assertThat(userGradeInfo.getNextUserGrade()).isEqualTo(UserGrade.REGULAR);
         assertThat(userGradeInfo.getOrderCount()).isEqualTo(0);
         assertThat(userGradeInfo.getAmount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("이메일로 사용자를 조회한다.")
+    void find_user_by_email() {
+        // given
+        userRepository.save(
+                new User(
+                        "신규사용자", "newUser@test.com", "user1!", "010-1111-2222"
+                )
+        );
+
+        // when
+        LoginUserDto userDto = userService.findUserForLogin("newUser@test.com");
+
+        // then
+        assertThat(userDto.getUserId()).isNotNull();
+        assertThat(userDto.getEmail()).isEqualTo("newUser@test.com");
+        assertThat(userDto.getLoginFailCount()).isEqualTo(0);
+        assertThat(userDto.getPassword()).isNotNull();
     }
 }

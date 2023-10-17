@@ -27,12 +27,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
 import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
+import shoppingmall.userservice.user.application.dto.LoginUserDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
 import shoppingmall.userservice.user.domain.UserGrade;
@@ -144,8 +146,15 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("email", is("ne*@test.com")))
-                .andDo(document("find_email"))
-        ;
+                .andDo(document("find_email",
+                        requestFields(
+                                fieldWithPath("name").description("사용자 이름"),
+                                fieldWithPath("telNo").description("연락처")
+                        ),
+                        responseFields(
+                                fieldWithPath("email").description("가입 시, 사용한 이메일(마스킹 처리돼서 조회됨)")
+                        )
+                ));
     }
 
     @Test
@@ -172,8 +181,19 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("userId", is(10)))
-                .andDo(document("find_pw"))
-        ;
+                .andDo(document("find_pw",
+                        requestFields(
+                                fieldWithPath("name").description("사용자 이름"),
+                                fieldWithPath("telNo").description("연락처"),
+                                fieldWithPath("email").description("이메일")
+                        ),
+                        responseFields(
+                                fieldWithPath("userId").description("사용자 고유 ID"),
+                                fieldWithPath("name").description("사용자 이름"),
+                                fieldWithPath("telNo").description("연락처"),
+                                fieldWithPath("email").description("이메일")
+                        )
+                ));
     }
 
     @Test
@@ -225,15 +245,26 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(put("/user/{id}", 1000L)
+        mockMvc.perform(RestDocumentationRequestBuilders.put("/user/{id}", 1000L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(1000)))
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")))
-                .andDo(document("update_user"))
-        ;
+                .andDo(document("update_user",
+                        requestFields(
+                                fieldWithPath("password").description("비밀번호(평문)"),
+                                fieldWithPath("telNo").description("연락처")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 고유 ID"),
+                                fieldWithPath("name").description("사용자 이름"),
+                                fieldWithPath("email").description("가입 이메일"),
+                                fieldWithPath("telNo").description("연락처"),
+                                fieldWithPath("signUpDate").description("2022-12-22")
+                        )
+                ));
     }
 
     @Test
@@ -250,7 +281,7 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(get("/user/{id}/grade-info", 1000L)
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/user/{id}/grade-info", 1000L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -259,7 +290,52 @@ public class UserControllerTest {
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")))
                 .andExpect(jsonPath("currentUserGrade", is("단골회원")))
                 .andExpect(jsonPath("nextUserGrade", is("VIP")))
-                .andDo(document("find_user_grade_info"))
+                .andDo(document("find_user_grade_info",
+                        pathParameters(
+                                parameterWithName("id").description("사용자 고유 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("userId").description("사용자 고유 ID"),
+                                fieldWithPath("userName").description("사용자 이름"),
+                                fieldWithPath("signUpDate").description("가입일자"),
+                                fieldWithPath("currentUserGrade").description("현재 회원등급"),
+                                fieldWithPath("gradeDiscountRate").description("등급 할인율"),
+                                fieldWithPath("nextUserGrade").description("다음 회원등급"),
+                                fieldWithPath("remainedOrderCountForNextGrade").description("다음 회원등급 승급까지 남은 주문 수"),
+                                fieldWithPath("remainedAmountsForNextGrade").description("다음 회원등급 승급까지 남은 주문 금액")
+                        )
+                ))
         ;
+    }
+
+    @Test
+    @DisplayName("가입한 email 로 사용자 정보를 조회한다.")
+    void find_user_by_email() throws Exception {
+        // given
+        when(userService.findUserForLogin(any())).thenReturn(
+                new LoginUserDto(
+                        100L, "newUser@test.com", 0, "encryptPasswordOfSpringSecurity"
+                )
+        );
+
+        // when & then
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users?email={email}", "newUser@test.com"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("userId", is(100)))
+                .andExpect(jsonPath("email", is("newUser@test.com")))
+                .andExpect(jsonPath("loginFailCount", is(0)))
+                .andExpect(jsonPath("password", is("encryptPasswordOfSpringSecurity")))
+                .andDo(document("find_user_by_email",
+                        queryParameters(
+                                parameterWithName("email").description("가입 이메일")
+                        ),
+                        responseFields(
+                                fieldWithPath("userId").description("사용자 고유 ID"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("loginFailCount").description("로그인 실패 횟수"),
+                                fieldWithPath("password").description("암호화된 비밀번호")
+                        )
+                ));
     }
 }

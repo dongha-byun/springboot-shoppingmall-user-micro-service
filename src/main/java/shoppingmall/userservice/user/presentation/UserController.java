@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailRequestDto;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwRequestDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
+import shoppingmall.userservice.user.application.dto.LoginUserDto;
 import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserEditDto;
@@ -24,6 +26,7 @@ import shoppingmall.userservice.user.presentation.request.SignUpRequest;
 import shoppingmall.userservice.user.presentation.request.UserEditRequest;
 import shoppingmall.userservice.user.presentation.response.FindEmailResultResponse;
 import shoppingmall.userservice.user.presentation.response.FindPwResponse;
+import shoppingmall.userservice.user.presentation.response.LoginUserResponse;
 import shoppingmall.userservice.user.presentation.response.UserGradeInfoResponse;
 import shoppingmall.userservice.user.presentation.response.UserResponse;
 
@@ -81,6 +84,14 @@ public class UserController {
     public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(@PathVariable("id") Long userId) {
         UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(userId);
         UserGradeInfoResponse response = UserGradeInfoResponse.to(userGradeInfo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<LoginUserResponse> findUserForLogin(@RequestParam("email") String email) {
+        LoginUserDto loginUserDto = userService.findUserForLogin(email);
+        LoginUserResponse response = LoginUserResponse.of(loginUserDto);
+
         return ResponseEntity.ok(response);
     }
 }
