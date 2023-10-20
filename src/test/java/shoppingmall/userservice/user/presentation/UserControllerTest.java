@@ -130,7 +130,7 @@ public class UserControllerTest {
     void find_email() throws Exception {
         // given
         FindEmailRequest findEmailRequest = new FindEmailRequest(
-                "신규 가입자", "010-2222-3333"
+                "신규가입자", "010-2222-3333"
         );
         String content = objectMapper.writeValueAsString(findEmailRequest);
 
@@ -162,13 +162,13 @@ public class UserControllerTest {
     void find_pw() throws Exception {
         // given
         FindPwRequest findPwRequest = new FindPwRequest(
-                "신규 사용자", "010-1234-2345", "newUser@test.com"
+                "신규사용자", "010-1234-2345", "newUser@test.com"
         );
         String content = objectMapper.writeValueAsString(findPwRequest);
 
         when(userService.findPw(any())).thenReturn(
                 new FindPwResponseDto(
-                        10L, "신규 사용자",
+                        10L, "신규사용자",
                         "010-1234-2345", "newUser@test.com"
                 )
         );
@@ -202,7 +202,7 @@ public class UserControllerTest {
         // given
         when(userService.findUser(any())).thenReturn(
                 new UserDto(
-                        100L, "사용자 100",
+                        100L, "사용자100",
                         "user100@test.com", "010-1234-2345",
                         LocalDateTime.of(2022, 12, 22, 11, 34, 19)
                 )
@@ -238,7 +238,7 @@ public class UserControllerTest {
         String content = objectMapper.writeValueAsString(userEditRequest);
         when(userService.editUser(any(), any())).thenReturn(
                 new UserDto(
-                        1000L, "사용자 100",
+                        1000L, "사용자100",
                         "user100@test.com", "010-2345-3456",
                         LocalDateTime.of(2022, 12, 22, 11, 34, 19)
                 )
@@ -273,7 +273,7 @@ public class UserControllerTest {
         // given
         when(userService.getUserGradeInfo(any())).thenReturn(
                 new UserGradeInfoDto(
-                        1000L, "사용자 1000",
+                        1000L, "사용자1000",
                         LocalDateTime.of(2022, 12, 22, 0, 0, 0),
                         UserGrade.REGULAR, UserGrade.VIP,
                         50, 10000
@@ -286,7 +286,7 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("userId", is(1000)))
-                .andExpect(jsonPath("userName", is("사용자 1000")))
+                .andExpect(jsonPath("userName", is("사용자1000")))
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")))
                 .andExpect(jsonPath("currentUserGrade", is("단골회원")))
                 .andExpect(jsonPath("nextUserGrade", is("VIP")))

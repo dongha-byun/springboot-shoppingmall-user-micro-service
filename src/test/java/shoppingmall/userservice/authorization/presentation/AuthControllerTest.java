@@ -27,7 +27,7 @@ import shoppingmall.userservice.authorization.presentation.request.AuthRequest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@AutoConfigureRestDocs
+@AutoConfigureRestDocs(uriScheme = "https", uriHost = "api.shopping.mall", uriPort = 443)
 class AuthControllerTest {
 
     @Autowired

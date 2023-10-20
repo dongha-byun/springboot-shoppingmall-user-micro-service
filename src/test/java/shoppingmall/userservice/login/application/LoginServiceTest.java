@@ -44,10 +44,10 @@ class LoginServiceTest {
         // given
 
         // when
-        Long userId = loginService.login("newUser@test.com", "encryptPasswordBySpringSecurity");
+        String accessToken = loginService.login("newUser@test.com", "encryptPasswordBySpringSecurity", "127.0.0.1");
 
         // then
-        assertThat(userId).isNotNull();
+        assertThat(accessToken).isNotNull();
     }
 
     @Test
@@ -57,7 +57,7 @@ class LoginServiceTest {
 
         // when & then
         assertThatThrownBy(
-                () -> loginService.login("newUser@test.com", "wrongPassword")
+                () -> loginService.login("newUser@test.com", "wrongPassword", "127.0.0.1")
         ).isInstanceOf(WrongPasswordException.class);
 
         User user = userRepository.findUserByLoginInfoEmail("newUser@test.com").orElseThrow();
@@ -71,7 +71,7 @@ class LoginServiceTest {
 
         // when & then
         assertThatThrownBy(
-                () -> loginService.login("notExistsEmail@test.com", "encryptPasswordBySpringSecurity")
+                () -> loginService.login("notExistsEmail@test.com", "encryptPasswordBySpringSecurity", "127.0.0.1")
         ).isInstanceOf(NotExistsEmailException.class);
     }
 
@@ -89,7 +89,7 @@ class LoginServiceTest {
 
         // when & then
         assertThatThrownBy(
-                () -> loginService.login(email, password)
+                () -> loginService.login(email, password, "127.0.0.1")
         ).isInstanceOf(TryLoginLockedUserException.class);
     }
 }

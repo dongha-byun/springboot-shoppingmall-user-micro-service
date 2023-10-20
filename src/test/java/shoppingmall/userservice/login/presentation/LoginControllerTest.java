@@ -28,7 +28,7 @@ import shoppingmall.userservice.login.presentation.request.LoginRequest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@AutoConfigureRestDocs
+@AutoConfigureRestDocs(uriScheme = "https", uriHost = "api.shopping.mall", uriPort = 443)
 class LoginControllerTest {
 
     @Autowired
@@ -47,7 +47,7 @@ class LoginControllerTest {
         LoginRequest loginRequest = new LoginRequest("newUser@test.com", "plainPassword");
         String requestBody = objectMapper.writeValueAsString(loginRequest);
 
-        when(loginService.login(any(), any())).thenReturn(100L);
+        when(loginService.login(any(), any(), any())).thenReturn("Access-Token-By-JWT");
 
         // when & then
         mockMvc.perform(post("/login")
@@ -56,14 +56,14 @@ class LoginControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId", is(100)))
+                .andExpect(jsonPath("$.accessToken", is("Access-Token-By-JWT")))
                 .andDo(document("login",
                         requestFields(
                                 fieldWithPath("email").description("이메일 주소"),
                                 fieldWithPath("password").description("비밀번호(평문)")
                         ),
                         responseFields(
-                                fieldWithPath("userId").description("로그인 사용자 고유 ID")
+                                fieldWithPath("accessToken").description("Access Token")
                         ))
                 )
         ;

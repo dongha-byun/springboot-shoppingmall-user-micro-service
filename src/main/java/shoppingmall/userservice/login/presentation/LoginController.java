@@ -1,5 +1,6 @@
 package shoppingmall.userservice.login.presentation;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +17,11 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws WrongPasswordException {
-        Long userId = loginService.login(
-                loginRequest.getEmail(), loginRequest.getPassword()
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest,
+                                               HttpServletRequest request) throws WrongPasswordException {
+        String accessToken = loginService.login(
+                loginRequest.getEmail(), loginRequest.getPassword(), request.getRemoteHost()
         );
-        return ResponseEntity.ok(new LoginResponse(userId));
+        return ResponseEntity.ok(new LoginResponse(accessToken));
     }
 }
