@@ -1,0 +1,72 @@
+= User Micro Service API of Shopping Mall
+:toc:
+
+== 회원가입
+=== 요청
+include::{snippets}/signUp/http-request.adoc[]
+include::{snippets}/signUp/request-fields.adoc[]
+=== 응답
+include::{snippets}/signUp/http-response.adoc[]
+include::{snippets}/signUp/response-fields.adoc[]
+=== CURL
+include::{snippets}/signUp/curl-request.adoc[]
+
+== 이메일 찾기
+=== 요청
+include::{snippets}/find_email/http-request.adoc[]
+include::{snippets}/find_email/request-fields.adoc[]
+=== 응답
+include::{snippets}/find_email/http-response.adoc[]
+include::{snippets}/find_email/response-fields.adoc[]
+=== CURL
+include::{snippets}/find_email/curl-request.adoc[]
+
+== 가입정보 조회(비밀번호 재발급용)
+=== 요청
+include::{snippets}/find_pw/http-request.adoc[]
+include::{snippets}/find_pw/request-fields.adoc[]
+=== 응답
+include::{snippets}/find_pw/http-response.adoc[]
+include::{snippets}/find_pw/response-fields.adoc[]
+=== CURL
+include::{snippets}/find_pw/curl-request.adoc[]
+
+== 회원정보 조회(ID)
+=== 요청
+include::{snippets}/find_user/http-request.adoc[]
+include::{snippets}/find_user/path-parameters.adoc[]
+=== 응답
+include::{snippets}/find_user/http-response.adoc[]
+include::{snippets}/find_user/response-fields.adoc[]
+=== CURL
+include::{snippets}/find_user/curl-request.adoc[]
+
+== 회원정보 조회(Email, 로그인 시 사용)
+=== 요청
+include::{snippets}/find_user_by_email/http-request.adoc[]
+include::{snippets}/find_user_by_email/query-parameters.adoc[]
+=== 응답
+include::{snippets}/find_user_by_email/http-response.adoc[]
+include::{snippets}/find_user_by_email/response-fields.adoc[]
+=== CURL
+include::{snippets}/find_user_by_email/curl-request.adoc[]
+
+== 회원등급 정보 조회
+=== 요청
+include::{snippets}/find_user_grade_info/http-request.adoc[]
+include::{snippets}/find_user_grade_info/path-parameters.adoc[]
+=== 응답
+include::{snippets}/find_user_grade_info/http-response.adoc[]
+include::{snippets}/find_user_grade_info/response-fields.adoc[]
+=== CURL
+include::{snippets}/find_user_grade_info/curl-request.adoc[]
+
+== 회원정보 수정
+=== 요청
+include::{snippets}/update_user/http-request.adoc[]
+include::{snippets}/update_user/request-fields.adoc[]
+=== 응답
+include::{snippets}/update_user/http-response.adoc[]
+include::{snippets}/update_user/response-fields.adoc[]
+=== CURL
+include::{snippets}/update_user/curl-request.adoc[]

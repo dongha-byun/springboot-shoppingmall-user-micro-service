@@ -1,0 +1,10 @@
+= Access Token API of ShoppingMall
+
+== 요청
+include::{snippets}/auth/http-request.adoc[]
+include::{snippets}/auth/request-fields.adoc[]
+== 응답
+include::{snippets}/auth/http-response.adoc[]
+include::{snippets}/auth/response-fields.adoc[]
+== CURL
+include::{snippets}/auth/curl-request.adoc[]

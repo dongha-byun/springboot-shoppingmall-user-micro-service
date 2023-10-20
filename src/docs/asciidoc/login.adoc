@@ -1,0 +1,11 @@
+= Login API in User Micro Service of shoppingMall
+
+== 로그인 사용자 검증 요청
+=== 요청
+include::{snippets}/login/http-request.adoc[]
+include::{snippets}/login/request-fields.adoc[]
+=== 응답
+include::{snippets}/login/http-response.adoc[]
+include::{snippets}/login/response-fields.adoc[]
+=== CURL
+include::{snippets}/login/curl-request.adoc[]
