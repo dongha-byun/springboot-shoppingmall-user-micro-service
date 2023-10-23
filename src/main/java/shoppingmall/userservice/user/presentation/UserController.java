@@ -62,7 +62,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<UserResponse> findUser(@PathVariable("id") Long userId){
         UserDto dto = userService.findUser(userId);
         UserResponse response = UserResponse.of(dto);
@@ -70,7 +70,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/user/{id}")
+    @PutMapping("/users/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable("id") Long userId,
                                                    @RequestBody UserEditRequest userRequest){
         UserEditDto userEditDto = userRequest.toDto();
@@ -80,7 +80,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/user/{id}/grade-info")
+    @GetMapping("/users/{id}/grade-info")
     public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(@PathVariable("id") Long userId) {
         UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(userId);
         UserGradeInfoResponse response = UserGradeInfoResponse.to(userGradeInfo);

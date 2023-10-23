@@ -209,7 +209,7 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/user/{userId}", 100L)
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{userId}", 100L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -245,7 +245,7 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(RestDocumentationRequestBuilders.put("/user/{id}", 1000L)
+        mockMvc.perform(RestDocumentationRequestBuilders.put("/users/{id}", 1000L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
@@ -281,7 +281,7 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/user/{id}/grade-info", 1000L)
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{id}/grade-info", 1000L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
