@@ -41,7 +41,6 @@ class LoginServiceTest {
                         .telNo("010-1234-1234")
                         .build()
         );
-        System.out.println("test code's encodedPassword = " + encodedPassword);
     }
 
     @Test
