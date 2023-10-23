@@ -1,7 +1,11 @@
 spring:
   profiles:
     active: local
-
+---
+spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: user-service
 
@@ -40,8 +44,9 @@ eureka:
 
 ---
 spring:
-  profiles:
-    active: test
+  config:
+    activate:
+      on-profile: test
 
   datasource:
     url: jdbc:h2:mem:userDB
