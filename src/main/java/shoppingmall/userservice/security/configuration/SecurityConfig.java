@@ -1,25 +1,36 @@
-package shoppingmall.userservice;
+package shoppingmall.userservice.security.configuration;
 
 import static org.springframework.security.config.Customizer.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import shoppingmall.userservice.security.UserPrincipal;
+import shoppingmall.userservice.security.filter.EmailPasswordAuthFilter;
+import shoppingmall.userservice.security.handler.LoginFailureHandler;
+import shoppingmall.userservice.security.handler.LoginSuccessHandler;
 import shoppingmall.userservice.user.domain.User;
 import shoppingmall.userservice.user.domain.UserFinder;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper;
+    private final UserFinder userFinder;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -41,15 +52,15 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
+                                new AntPathRequestMatcher("/login", HttpMethod.POST.name()),
                                 new AntPathRequestMatcher("/sign-up", HttpMethod.POST.name()),
-                                new AntPathRequestMatcher("/find-email", HttpMethod.POST.name()),
                                 new AntPathRequestMatcher("/find-pw", HttpMethod.POST.name()),
-                                new AntPathRequestMatcher("/login", HttpMethod.POST.name())
+                                new AntPathRequestMatcher("/find-email", HttpMethod.POST.name())
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());
-        
+
         return http.build();
     }
 
@@ -60,6 +71,24 @@ public class SecurityConfig {
 
             return new UserPrincipal(userByEmail);
         };
+    }
+
+    @Bean
+    public EmailPasswordAuthFilter emailPasswordAuthenticationFilter() {
+        EmailPasswordAuthFilter filter = new EmailPasswordAuthFilter("/login", objectMapper);
+        filter.setAuthenticationManager(authenticationManager());
+        filter.setAuthenticationSuccessHandler(new LoginSuccessHandler());
+        filter.setAuthenticationFailureHandler(new LoginFailureHandler(objectMapper));
+
+        return filter;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(passwordEncoder());
+        authenticationProvider.setUserDetailsService(userDetailsService(userFinder));
+
+        return new ProviderManager(authenticationProvider);
     }
 
 }

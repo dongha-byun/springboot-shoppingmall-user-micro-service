@@ -1,4 +1,4 @@
-package shoppingmall.userservice;
+package shoppingmall.userservice.security;
 
 import java.util.List;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
