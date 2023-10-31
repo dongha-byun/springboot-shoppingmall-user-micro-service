@@ -17,26 +17,25 @@ public class JwtTokenProvider {
     private final JwtTokenExpireDurationStrategy expireDateStrategy;
     private final SecretKey secretKey = Keys.hmacShaKeyFor("secret_key_of_dong_ha_do_not_snap_this".getBytes(StandardCharsets.UTF_8));
 
-    public String createAccessToken(Long userId, String accessIp, Date date) {
-        return generateToken(userId, expireDateStrategy.getAccessTokenExpireDuration(), date);
+    public String createAccessToken(String email, String accessIp, Date date) {
+        return generateToken(email, expireDateStrategy.getAccessTokenExpireDuration(), date);
     }
 
-    public String createRefreshToken(Long userId, String accessIp, Date date){
-        return generateToken(userId, expireDateStrategy.getRefreshTokenExpireDuration(), date);
+    public String createRefreshToken(String email, String accessIp, Date date){
+        return generateToken(email, expireDateStrategy.getRefreshTokenExpireDuration(), date);
     }
 
-    private String generateToken(Long userId, long expireTime, Date currentDate) {
+    private String generateToken(String email, long expireTime, Date currentDate) {
         return Jwts.builder()
-                .subject(userId.toString())
+                .subject(email)
                 .issuedAt(currentDate)
                 .expiration(new Date(currentDate.getTime() + expireTime))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public Long getUserId(String token){
-        String subject = getBodyOfToken(token).getSubject();
-        return Long.valueOf(subject);
+    public String getEmail(String token) {
+        return getBodyOfToken(token).getSubject();
     }
 
     // jwt 토큰 유효성 체크

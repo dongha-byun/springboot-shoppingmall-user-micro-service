@@ -48,7 +48,7 @@ class AuthControllerTest {
         Instant instant = currentLocalDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Date currentDate = Date.from(instant);
         AuthRequest authRequest = new AuthRequest(
-                100L, "127.0.0.1", currentDate
+                "test@test.com", "127.0.0.1", currentDate
         );
         String requestBody = objectMapper.writeValueAsString(authRequest);
 
@@ -62,7 +62,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.accessToken", notNullValue()))
                 .andDo(document("auth",
                         requestFields(
-                                fieldWithPath("userId").description("사용자 고유 ID"),
+                                fieldWithPath("email").description("사용자 가입 Email"),
                                 fieldWithPath("accessIp").description("접속 IP"),
                                 fieldWithPath("currentDate").description("토근 생성 일자")
                         ),

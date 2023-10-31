@@ -29,7 +29,7 @@ public class LoginService {
                 );
         validateLogin(password, user);
 
-        ResponseAuthInfo authInfo = authServiceClient.getAuthInfo(user.getId(), accessIp, LocalDateTime.now());
+        ResponseAuthInfo authInfo = authServiceClient.getAuthInfo(email, accessIp, LocalDateTime.now());
 
         return authInfo.getAccessToken();
     }

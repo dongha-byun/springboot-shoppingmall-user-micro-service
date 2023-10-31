@@ -39,13 +39,13 @@ class JwtTokenProviderTest {
         Date currentDate = new Date();
 
         // when
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), "127.0.0.1", currentDate);
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), "127.0.0.1", currentDate);
 
         // then
         assertThat(accessToken).isNotNull();
 
-        Long userId = jwtTokenProvider.getUserId(accessToken);
-        assertThat(userId).isEqualTo(user.getId());
+        String email = jwtTokenProvider.getEmail(accessToken);
+        assertThat(email).isEqualTo(user.getEmail());
     }
 
     @Test
@@ -57,7 +57,7 @@ class JwtTokenProviderTest {
 
         // given
         Date currentDate = new Date();
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), "127.0.0.1", currentDate);
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), "127.0.0.1", currentDate);
 
         // when & then
         assertThat(jwtTokenProvider.validateExpireToken(accessToken)).isTrue();

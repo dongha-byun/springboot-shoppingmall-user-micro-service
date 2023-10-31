@@ -16,11 +16,11 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public String createAuthInfo(Long userId, String accessIp, Date currentDate) {
-        String accessToken = jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
-        String refreshToken = jwtTokenProvider.createRefreshToken(userId, accessIp, currentDate);
+    public String createAuthInfo(String email, String accessIp, Date currentDate) {
+        String accessToken = jwtTokenProvider.createAccessToken(email, accessIp, currentDate);
+        String refreshToken = jwtTokenProvider.createRefreshToken(email, accessIp, currentDate);
 
-        refreshTokenRepository.save(new RefreshToken(userId, refreshToken));
+        refreshTokenRepository.save(new RefreshToken(email, refreshToken));
         return accessToken;
     }
 }

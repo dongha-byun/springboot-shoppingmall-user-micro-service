@@ -7,12 +7,13 @@ import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
-// UsernamePasswordAuthenticationFilter 사용 시, 기본적으로 "/login" URL 이 PostMapping 됨
+@Slf4j
 public class EmailPasswordAuthFilter extends AbstractAuthenticationProcessingFilter {
 
     private final ObjectMapper objectMapper;
@@ -32,8 +33,14 @@ public class EmailPasswordAuthFilter extends AbstractAuthenticationProcessingFil
                 emailPassword.getPassword()
         );
 
+        log.info("token ==> email : {} / password : {}", token.getPrincipal(), token.getCredentials());
         token.setDetails(this.authenticationDetailsSource.buildDetails(request));
-        return this.getAuthenticationManager().authenticate(token);
+        log.info("token ==> details : {}", token.getDetails());
+
+        Authentication authenticate = this.getAuthenticationManager().authenticate(token);
+        log.info("authenticate ==> {}", authenticate);
+
+        return authenticate;
     }
 
     @NoArgsConstructor

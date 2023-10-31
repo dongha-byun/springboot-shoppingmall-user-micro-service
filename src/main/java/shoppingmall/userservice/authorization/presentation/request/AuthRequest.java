@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class AuthRequest {
-    private Long userId;
+    private String email;
     private String accessIp;
     private Date currentDate;
 }

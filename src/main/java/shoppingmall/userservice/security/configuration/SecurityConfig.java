@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import shoppingmall.userservice.login.client.AuthServiceClient;
 import shoppingmall.userservice.security.UserPrincipal;
 import shoppingmall.userservice.security.filter.EmailPasswordAuthFilter;
 import shoppingmall.userservice.security.handler.LoginFailureHandler;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
     private final UserFinder userFinder;
+    private final AuthServiceClient authServiceClient;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -40,6 +42,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
+                .requestMatchers(new AntPathRequestMatcher("/docs/**"))
                 .requestMatchers(new AntPathRequestMatcher("/favicon"))
                 .requestMatchers(new AntPathRequestMatcher("/error"))
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
@@ -74,10 +77,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public EmailPasswordAuthFilter emailPasswordAuthenticationFilter() {
+    public EmailPasswordAuthFilter emailPasswordAuthFilter() {
         EmailPasswordAuthFilter filter = new EmailPasswordAuthFilter("/login", objectMapper);
         filter.setAuthenticationManager(authenticationManager());
-        filter.setAuthenticationSuccessHandler(new LoginSuccessHandler());
+        filter.setAuthenticationSuccessHandler(new LoginSuccessHandler(objectMapper, authServiceClient));
         filter.setAuthenticationFailureHandler(new LoginFailureHandler(objectMapper));
 
         return filter;

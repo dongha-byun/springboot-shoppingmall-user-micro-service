@@ -25,7 +25,7 @@ class AuthServiceTest {
 
         // when
         Date currentDate = new Date();
-        String accessToken = authService.createAuthInfo(100L, "127.0.0.1", currentDate);
+        String accessToken = authService.createAuthInfo("testUser@test.com", "127.0.0.1", currentDate);
 
         // then
         assertThat(accessToken).isNotNull();
