@@ -1,9 +1,7 @@
 package shoppingmall.userservice.authorization.infra;
 
-import org.springframework.stereotype.Component;
 import shoppingmall.userservice.authorization.domain.JwtTokenExpireDurationStrategy;
 
-@Component
 public class ManualJwtTokenExpireDurationStrategy implements JwtTokenExpireDurationStrategy {
 
     @Override

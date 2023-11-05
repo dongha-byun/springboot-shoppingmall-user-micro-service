@@ -47,6 +47,12 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+# spring security jwt key info
+jwt:
+  key:
+    private: classpath:app.key
+    public: classpath:app.pub
+
 ---
 spring:
   config:

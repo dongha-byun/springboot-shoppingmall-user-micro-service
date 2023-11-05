@@ -1,5 +1,6 @@
 package shoppingmall.userservice.authorization.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
@@ -15,6 +16,7 @@ public class RefreshToken extends BaseEntity {
     @Id
     private String email;
 
+    @Column(length = 1000)
     private String refreshToken;
 
     @Builder
