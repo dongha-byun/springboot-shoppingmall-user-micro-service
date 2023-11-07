@@ -2,7 +2,6 @@ package shoppingmall.userservice.login.application;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shoppingmall.userservice.login.client.AuthServiceClient;
@@ -20,7 +19,6 @@ public class LoginService {
 
     private final UserRepository userRepository;
     private final AuthServiceClient authServiceClient;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     public String login(String email, String password, String accessIp) throws WrongPasswordException {
         User user = userRepository.findUserByLoginInfoEmail(email)
@@ -29,7 +27,7 @@ public class LoginService {
                 );
         validateLogin(password, user);
 
-        ResponseAuthInfo authInfo = authServiceClient.getAuthInfo(email, accessIp, LocalDateTime.now());
+        ResponseAuthInfo authInfo = authServiceClient.getAuthInfo(user.getId(), accessIp, LocalDateTime.now());
 
         return authInfo.getAccessToken();
     }
@@ -39,7 +37,7 @@ public class LoginService {
             throw new TryLoginLockedUserException("해당 계정은 로그인 실패 횟수 5회를 초과하여 로그인 할 수 없습니다. 관리자에게 문의해주세요.");
         }
 
-        if(!passwordEncoder.matches(password, user.getPassword())) {
+        if(!password.equals(user.getPassword())) {
             int loginFailCount = user.increaseLoginFailCount();
             throw new WrongPasswordException("비밀번호가 틀렸습니다. 5회 이상 실패하시는 경우, 로그인하실 수 없습니다. (현재 " + loginFailCount + " / 5)");
         }

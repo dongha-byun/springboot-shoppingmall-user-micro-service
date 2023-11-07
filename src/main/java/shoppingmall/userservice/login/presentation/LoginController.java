@@ -16,7 +16,7 @@ import shoppingmall.userservice.login.presentation.response.LoginResponse;
 public class LoginController {
     private final LoginService loginService;
 
-    @PostMapping("/my-login")
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest,
                                                HttpServletRequest request) throws WrongPasswordException {
         String accessToken = loginService.login(

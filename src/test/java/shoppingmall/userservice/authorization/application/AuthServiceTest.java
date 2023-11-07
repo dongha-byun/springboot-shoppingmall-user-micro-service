@@ -1,10 +1,8 @@
 package shoppingmall.userservice.authorization.application;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,7 @@ class AuthServiceTest {
 
         // when
         Date currentDate = new Date();
-        String accessToken = authService.createAuthInfo("testUser@test.com", "127.0.0.1", currentDate);
+        String accessToken = authService.createAuthInfo(100L, "127.0.0.1", currentDate);
 
         // then
         assertThat(accessToken).isNotNull();

@@ -16,10 +16,10 @@ public class MemoryAuthServiceClient implements AuthServiceClient {
     private final AuthService authService;
 
     @Override
-    public ResponseAuthInfo getAuthInfo(String email, String accessIp, LocalDateTime accessTime) {
+    public ResponseAuthInfo getAuthInfo(Long userId, String accessIp, LocalDateTime accessTime) {
         Instant instant = accessTime.atZone(ZoneId.systemDefault()).toInstant();
         Date currentDate = Date.from(instant);
-        String accessToken = authService.createAuthInfo(email, accessIp, currentDate);
+        String accessToken = authService.createAuthInfo(userId, accessIp, currentDate);
 
         return new ResponseAuthInfo(accessToken);
     }

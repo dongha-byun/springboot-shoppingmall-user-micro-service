@@ -4,5 +4,5 @@ import java.time.LocalDateTime;
 import shoppingmall.userservice.login.client.response.ResponseAuthInfo;
 
 public interface AuthServiceClient {
-    ResponseAuthInfo getAuthInfo(String email, String accessIp, LocalDateTime accessTime);
+    ResponseAuthInfo getAuthInfo(Long userId, String accessIp, LocalDateTime accessTime);
 }

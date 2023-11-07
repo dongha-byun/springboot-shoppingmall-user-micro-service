@@ -8,10 +8,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,11 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
@@ -81,7 +74,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/sign-up")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
@@ -120,7 +112,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/sign-up")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
@@ -145,7 +136,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/find-email")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                 )
@@ -181,7 +171,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(post("/find-pw")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                 )
@@ -204,7 +193,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
     @DisplayName("사용자가 자신의 회원정보를 조회한다.")
     void find_user() throws Exception {
         // given
@@ -218,7 +206,7 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{userId}", 100L)
-                        .with(csrf())
+                        .header("X-GATEWAY-EMAIL", "user100@test.com")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -240,7 +228,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
     @DisplayName("로그인한 사용자가 자신의 회원정보를 수정한다.")
     void update_user() throws Exception {
         // given
@@ -256,7 +243,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(RestDocumentationRequestBuilders.put("/users/{id}", 1000L)
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
@@ -279,7 +265,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
     @DisplayName("로그인 사용자가 자신의 등급정보를 조회한다.")
     void find_user_grade_info() throws Exception {
         // given
@@ -294,7 +279,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{id}/grade-info", 1000L)
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -322,7 +306,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
     @DisplayName("가입한 email 로 사용자 정보를 조회한다.")
     void find_user_by_email() throws Exception {
         // given
@@ -334,7 +317,6 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users?email={email}", "newUser@test.com")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())

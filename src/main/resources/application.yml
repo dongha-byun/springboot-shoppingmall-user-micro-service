@@ -37,6 +37,10 @@ spring:
 server:
   port: 8081
 
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+
 # eureka client 정보
 eureka:
   instance:

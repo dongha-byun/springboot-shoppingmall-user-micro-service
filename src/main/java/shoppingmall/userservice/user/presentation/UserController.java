@@ -2,6 +2,7 @@ package shoppingmall.userservice.user.presentation;
 
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,8 @@ import shoppingmall.userservice.user.application.dto.SignUpRequestDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserEditDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
+import shoppingmall.userservice.user.presentation.argumentresolver.GatewayAuthentication;
+import shoppingmall.userservice.user.presentation.argumentresolver.GatewayAuthInfo;
 import shoppingmall.userservice.user.presentation.request.FindEmailRequest;
 import shoppingmall.userservice.user.presentation.request.FindPwRequest;
 import shoppingmall.userservice.user.presentation.request.SignUpRequest;
@@ -30,6 +33,7 @@ import shoppingmall.userservice.user.presentation.response.LoginUserResponse;
 import shoppingmall.userservice.user.presentation.response.UserGradeInfoResponse;
 import shoppingmall.userservice.user.presentation.response.UserResponse;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -62,9 +66,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<UserResponse> findUser(@PathVariable("id") Long userId){
-        UserDto dto = userService.findUser(userId);
+    @GetMapping("/users")
+    public ResponseEntity<UserResponse> findUser(@GatewayAuthentication GatewayAuthInfo gatewayAuthInfo){
+        UserDto dto = userService.findUser(gatewayAuthInfo.userId());
         UserResponse response = UserResponse.of(dto);
 
         return ResponseEntity.ok(response);
@@ -87,7 +91,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/users")
+    @GetMapping("/users/login")
     public ResponseEntity<LoginUserResponse> findUserForLogin(@RequestParam("email") String email) {
         LoginUserDto loginUserDto = userService.findUserForLogin(email);
         LoginUserResponse response = LoginUserResponse.of(loginUserDto);

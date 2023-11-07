@@ -14,14 +14,14 @@ import shoppingmall.userservice.BaseEntity;
 @Entity
 public class RefreshToken extends BaseEntity {
     @Id
-    private String email;
+    private Long userId;
 
     @Column(length = 1000)
     private String refreshToken;
 
     @Builder
-    public RefreshToken(String email, String refreshToken) {
-        this.email = email;
+    public RefreshToken(Long userId, String refreshToken) {
+        this.userId = userId;
         this.refreshToken = refreshToken;
     }
 }

@@ -18,7 +18,7 @@ public class AuthController {
     @PostMapping("/auth")
     public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) {
         String accessToken = authService.createAuthInfo(
-                authRequest.getEmail(), authRequest.getAccessIp(), authRequest.getCurrentDate()
+                authRequest.getUserId(), authRequest.getAccessIp(), authRequest.getCurrentDate()
         );
 
         return ResponseEntity.ok(new AuthResponse(accessToken));
