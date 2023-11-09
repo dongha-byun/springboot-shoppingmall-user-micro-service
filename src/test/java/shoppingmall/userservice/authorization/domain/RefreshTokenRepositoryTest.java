@@ -36,7 +36,7 @@ class RefreshTokenRepositoryTest {
         );
         refreshTokenRepository.save(
                 RefreshToken.builder()
-                        .email("tester@test.com")
+                        .userId(saveUser.getId())
                         .refreshToken("refreshToken")
                         .build()
         );
@@ -48,11 +48,11 @@ class RefreshTokenRepositoryTest {
         // given
 
         // when
-        RefreshToken refreshToken = refreshTokenRepository.findById(saveUser.getEmail())
+        RefreshToken refreshToken = refreshTokenRepository.findById(saveUser.getId())
                 .orElseThrow(IllegalArgumentException::new);
 
         // then
-        assertThat(refreshToken.getEmail()).isEqualTo(saveUser.getEmail());
+        assertThat(refreshToken.getUserId()).isEqualTo(saveUser.getId());
         assertThat(refreshToken.getRefreshToken()).isNotNull();
     }
 
@@ -62,10 +62,10 @@ class RefreshTokenRepositoryTest {
         // given
 
         // when
-        refreshTokenRepository.deleteById(saveUser.getEmail());
+        refreshTokenRepository.deleteById(saveUser.getId());
 
         // then
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findById(saveUser.getEmail());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findById(saveUser.getId());
         assertThat(refreshToken.isPresent()).isFalse();
     }
 

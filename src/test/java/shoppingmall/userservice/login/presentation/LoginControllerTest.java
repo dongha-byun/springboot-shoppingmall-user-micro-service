@@ -1,13 +1,13 @@
 package shoppingmall.userservice.login.presentation;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,29 +19,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import shoppingmall.userservice.login.application.LoginService;
 import shoppingmall.userservice.login.presentation.request.LoginRequest;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs(uriScheme = "https", uriHost = "api.shopping.mall", uriPort = 443)
 class LoginControllerTest {
 
+    @Autowired
     MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
 
-    public LoginControllerTest(WebApplicationContext webApplicationContext) {
-        this.mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .apply(springSecurity())
-                .build();
-    }
+    @MockBean
+    LoginService loginService;
 
     @Test
     @DisplayName("로그인에 성공한다.")
@@ -50,9 +46,12 @@ class LoginControllerTest {
         LoginRequest loginRequest = new LoginRequest("newUser@test.com", "plainPassword");
         String requestBody = objectMapper.writeValueAsString(loginRequest);
 
+        when(loginService.login(any(), any(), any())).thenReturn(
+                "Access-Token-By-Auth-Service"
+        );
+
         // when & then
         mockMvc.perform(post("/login")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )

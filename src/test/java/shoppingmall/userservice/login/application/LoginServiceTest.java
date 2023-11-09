@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import shoppingmall.userservice.login.exception.NotExistsEmailException;
 import shoppingmall.userservice.login.exception.TryLoginLockedUserException;
@@ -25,19 +24,15 @@ class LoginServiceTest {
     LoginService loginService;
 
     @Autowired
-    BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
     UserRepository userRepository;
 
     @BeforeEach
     void setup() {
-        String encodedPassword = passwordEncoder.encode("encryptPasswordBySpringSecurity");
         userRepository.save(
                 User.builder()
                         .userName("신규사용자")
                         .email("newUser@test.com")
-                        .password(encodedPassword)
+                        .password("encodedPassword")
                         .telNo("010-1234-1234")
                         .build()
         );
@@ -49,7 +44,7 @@ class LoginServiceTest {
         // given
 
         // when
-        String accessToken = loginService.login("newUser@test.com", "encryptPasswordBySpringSecurity", "127.0.0.1");
+        String accessToken = loginService.login("newUser@test.com", "encodedPassword", "127.0.0.1");
 
         // then
         assertThat(accessToken).isNotNull();
@@ -76,7 +71,7 @@ class LoginServiceTest {
 
         // when & then
         assertThatThrownBy(
-                () -> loginService.login("notExistsEmail@test.com", "encryptPasswordBySpringSecurity", "127.0.0.1")
+                () -> loginService.login("notExistsEmail@test.com", "encodedPassword", "127.0.0.1")
         ).isInstanceOf(NotExistsEmailException.class);
     }
 

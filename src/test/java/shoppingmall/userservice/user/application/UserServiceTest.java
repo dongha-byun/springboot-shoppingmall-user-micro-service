@@ -71,7 +71,7 @@ class UserServiceTest {
 
         // then
         User user = userRepository.findById(userDto.getId()).orElseThrow();
-        assertThat(user.getPassword()).isNotEqualTo("a");
+        assertThat(user.getPassword()).isEqualTo("a");
     }
 
     @Test

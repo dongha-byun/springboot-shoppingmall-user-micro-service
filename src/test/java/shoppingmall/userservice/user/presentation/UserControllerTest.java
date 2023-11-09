@@ -3,11 +3,12 @@ package shoppingmall.userservice.user.presentation;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import shoppingmall.userservice.user.application.UserService;
 import shoppingmall.userservice.user.application.dto.FindEmailResultDto;
 import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
-import shoppingmall.userservice.user.application.dto.LoginUserDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
 import shoppingmall.userservice.user.domain.UserGrade;
@@ -205,17 +205,14 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{userId}", 100L)
-                        .header("X-GATEWAY-EMAIL", "user100@test.com")
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users")
+                        .header("X-GATEWAY-SUBJECT", 100L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(100)))
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")))
                 .andDo(document("find_user",
-                        pathParameters(
-                                parameterWithName("userId").description("사용자 고유 ID")
-                        ),
                         responseFields(
                                 fieldWithPath("id").description("사용자 고유 ID"),
                                 fieldWithPath("name").description("사용자 이름"),
@@ -303,38 +300,5 @@ public class UserControllerTest {
                         )
                 ))
         ;
-    }
-
-    @Test
-    @DisplayName("가입한 email 로 사용자 정보를 조회한다.")
-    void find_user_by_email() throws Exception {
-        // given
-        when(userService.findUserForLogin(any())).thenReturn(
-                new LoginUserDto(
-                        100L, "newUser@test.com", 0, "encryptPasswordOfSpringSecurity"
-                )
-        );
-
-        // when & then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/users?email={email}", "newUser@test.com")
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("userId", is(100)))
-                .andExpect(jsonPath("email", is("newUser@test.com")))
-                .andExpect(jsonPath("loginFailCount", is(0)))
-                .andExpect(jsonPath("password", is("encryptPasswordOfSpringSecurity")))
-                .andDo(document("find_user_by_email",
-                        queryParameters(
-                                parameterWithName("email").description("가입 이메일")
-                        ),
-                        responseFields(
-                                fieldWithPath("userId").description("사용자 고유 ID"),
-                                fieldWithPath("email").description("이메일"),
-                                fieldWithPath("loginFailCount").description("로그인 실패 횟수"),
-                                fieldWithPath("password").description("암호화된 비밀번호")
-                        )
-                ));
     }
 }
