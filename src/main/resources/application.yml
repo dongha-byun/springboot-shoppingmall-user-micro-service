@@ -21,7 +21,7 @@ spring:
       path: /h2-console
 
   jpa:
-    show_sql: true
+    show-sql: true
     properties:
       hibernate:
         format_sql: true

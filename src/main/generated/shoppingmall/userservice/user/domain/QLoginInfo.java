@@ -21,6 +21,8 @@ public class QLoginInfo extends BeanPath<LoginInfo> {
 
     public final StringPath email = createString("email");
 
+    public final BooleanPath isLock = createBoolean("isLock");
+
     public final NumberPath<Integer> loginFailCount = createNumber("loginFailCount", Integer.class);
 
     public final StringPath password = createString("password");

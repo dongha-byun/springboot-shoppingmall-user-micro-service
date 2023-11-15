@@ -32,8 +32,6 @@ public class QUser extends EntityPathBase<User> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final BooleanPath isLock = createBoolean("isLock");
-
     public final QLoginInfo loginInfo;
 
     public final DateTimePath<java.time.LocalDateTime> signUpDate = createDateTime("signUpDate", java.time.LocalDateTime.class);

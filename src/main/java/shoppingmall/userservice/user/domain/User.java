@@ -36,7 +36,7 @@ public class User extends BaseEntity {
             @AttributeOverride(name="email", column = @Column(name = "email")),
             @AttributeOverride(name="password", column = @Column(name = "password")),
             @AttributeOverride(name="loginFailCount", column = @Column(name = "login_fail_count")),
-
+            @AttributeOverride(name="isLock", column = @Column(name = "is_lock"))
     })
     private LoginInfo loginInfo;
 
@@ -47,9 +47,6 @@ public class User extends BaseEntity {
 
     @Embedded
     private UserGradeInfo userGradeInfo;
-
-    @ColumnDefault("false")
-    private boolean isLock = false;
 
     public User(String userName, String email, String password, String telNo) {
         this(userName, email, password, telNo, LocalDateTime.now());
@@ -74,10 +71,9 @@ public class User extends BaseEntity {
     public User(String userName, String email, String password, String telNo, LocalDateTime signUpDate,
                 int loginFailCount, boolean isLock, UserGradeInfo userGradeInfo) {
         this.userName = userName;
-        this.loginInfo = new LoginInfo(email, password, loginFailCount);
+        this.loginInfo = new LoginInfo(email, password, loginFailCount, isLock);
         this.telNo = new TelNo(telNo);
         this.signUpDate = signUpDate;
-        this.isLock = isLock;
         this.userGradeInfo = userGradeInfo;
     }
 
@@ -96,19 +92,15 @@ public class User extends BaseEntity {
     }
 
     public int increaseLoginFailCount() {
-        int afterIncreaseFailCount = this.loginInfo.increaseLoginFailCount();
-        if(afterIncreaseFailCount >= 5) {
-            this.isLock = true;
-        }
-        return afterIncreaseFailCount;
-    }
-
-    public boolean isLocked() {
-        return this.isLock;
+        return this.loginInfo.increaseLoginFailCount();
     }
 
     public Optional<UserGrade> getNextUserGrade() {
         return this.userGradeInfo.nextGrade();
+    }
+
+    public boolean isLocked() {
+        return this.loginInfo.isLock();
     }
 
     public void increaseOrderAmount(int amounts) {
