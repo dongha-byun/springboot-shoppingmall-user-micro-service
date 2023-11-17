@@ -1,6 +1,11 @@
 spring:
   profiles:
     active: local
+    group:
+      local:
+        - authmail
+      test:
+        - authmail
 ---
 spring:
   config:
