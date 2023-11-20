@@ -23,4 +23,21 @@ public class AuthService {
         refreshTokenRepository.save(new RefreshToken(userId, refreshToken));
         return accessToken;
     }
+
+    public String reCreateAuthInfo(Long userId, String accessIp, Date currentDate) {
+        String refreshToken = findRefreshTokenBySubject(userId);
+        if(!jwtTokenProvider.canUse(refreshToken)) {
+            throw new IllegalStateException("RefreshToken의 유효시간이 만료되었습니다.");
+        }
+
+        return jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
+    }
+
+    private String findRefreshTokenBySubject(Long userId) {
+        RefreshToken entity = refreshTokenRepository.findById(userId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("RefreshToken 이 존재하지 않습니다.")
+                );
+        return entity.getRefreshToken();
+    }
 }

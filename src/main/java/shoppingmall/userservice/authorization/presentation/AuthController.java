@@ -2,6 +2,7 @@ package shoppingmall.userservice.authorization.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,15 @@ public class AuthController {
     @PostMapping("/auth")
     public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) {
         String accessToken = authService.createAuthInfo(
+                authRequest.getUserId(), authRequest.getAccessIp(), authRequest.getCurrentDate()
+        );
+
+        return ResponseEntity.ok(new AuthResponse(accessToken));
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody AuthRequest authRequest) {
+        String accessToken = authService.reCreateAuthInfo(
                 authRequest.getUserId(), authRequest.getAccessIp(), authRequest.getCurrentDate()
         );
 
