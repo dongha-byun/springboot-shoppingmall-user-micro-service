@@ -8,14 +8,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import shoppingmall.userservice.authorization.configuration.TestJwtConfiguration;
 import shoppingmall.userservice.user.domain.User;
 import shoppingmall.userservice.user.domain.UserRepository;
 
+@Import({TestJwtConfiguration.class})
 @Transactional
+@ActiveProfiles("test")
 @SpringBootTest
 class JwtTokenProviderTest {
 
+    @Autowired
     JwtTokenProvider jwtTokenProvider;
 
     @Autowired
@@ -28,7 +34,6 @@ class JwtTokenProviderTest {
         user = userRepository.save(User.builder()
                 .userName("테스터1").email("test1@test.com").password("test1!").telNo("010-0000-0000")
                 .build());
-        jwtTokenProvider = new JwtTokenProvider(new TestJwtTokenExpireDurationStrategy());
     }
 
     @Test
@@ -49,22 +54,23 @@ class JwtTokenProviderTest {
 
     @Test
     @DisplayName("Access token 은 만료시간이 지나면 token 을 사용할 수 없다.")
-    void validate_expire_date() throws InterruptedException {
-        // 유효기간이 짧은 토큰을 생성하면
-        // 토큰이 만료시, 리프레시 토큰에 의해 재발급받는다
-        // 재발급 받은게 유효한지 체크한다.
-
+    void validate_expire_date() {
         // given
         Date currentDate = new Date();
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), "127.0.0.1", currentDate);
-        assertThat(accessToken).isNotNull();
-        assertThat(jwtTokenProvider.getUserId(accessToken)).isEqualTo(user.getId());
+        Date pastDate = new Date(currentDate.getTime() - 10000);
+        String accessIp = "127.0.0.1";
 
-        // when & then
-        assertThat(jwtTokenProvider.validateExpireToken(accessToken)).isTrue();
+        // when
+        String canUseToken = jwtTokenProvider.createAccessToken(user.getId(), accessIp, currentDate);
+        String canNotUseToken = jwtTokenProvider.createAccessToken(user.getId(), accessIp, pastDate);
 
-        Thread.sleep(1000);
-        assertThat(jwtTokenProvider.validateExpireToken(accessToken)).isFalse();
+        // then
+        assertThat(canUseToken).isNotNull();
+        assertThat(jwtTokenProvider.canUse(canUseToken)).isTrue();
+        assertThat(jwtTokenProvider.getUserId(canUseToken)).isEqualTo(user.getId());
+
+        assertThat(canNotUseToken).isNotNull();
+        assertThat(jwtTokenProvider.canUse(canNotUseToken)).isFalse();
     }
 
 }
