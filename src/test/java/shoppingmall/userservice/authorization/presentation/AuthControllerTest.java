@@ -31,6 +31,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import shoppingmall.userservice.authorization.application.AuthService;
+import shoppingmall.userservice.authorization.exception.NotFoundRefreshTokenException;
+import shoppingmall.userservice.authorization.exception.RefreshTokenExpiredException;
 import shoppingmall.userservice.authorization.presentation.request.AuthRequest;
 
 @SpringBootTest
@@ -51,12 +53,7 @@ class AuthControllerTest {
     @DisplayName("사용자 정보를 통해 Access Token 을 발급받는다.")
     void auth() throws Exception {
         // given
-        LocalDateTime currentLocalDateTime = LocalDateTime.of(2023, 7, 12, 3, 11, 1);
-        Instant instant = currentLocalDateTime.atZone(ZoneId.systemDefault()).toInstant();
-        Date currentDate = Date.from(instant);
-        AuthRequest authRequest = new AuthRequest(
-                100L, "127.0.0.1", currentDate
-        );
+        AuthRequest authRequest = new AuthRequest(100L, "127.0.0.1");
         String requestBody = objectMapper.writeValueAsString(authRequest);
         when(authService.createAuthInfo(any(), any(), any())).thenReturn(
                 "new-access-token"
@@ -72,8 +69,7 @@ class AuthControllerTest {
                 .andDo(document("auth",
                         requestFields(
                                 fieldWithPath("userId").description("사용자 고유 ID"),
-                                fieldWithPath("accessIp").description("접속 IP"),
-                                fieldWithPath("currentDate").description("토근 생성 일자")
+                                fieldWithPath("accessIp").description("접속 IP")
                         ),
                         responseFields(
                                 fieldWithPath("accessToken").description("Access Token")
@@ -85,12 +81,7 @@ class AuthControllerTest {
     @DisplayName("refresh token 의 인증정보를 확인 후, access token을 재발급한다.")
     void access_token_expired_re_create_by_refresh_token() throws Exception {
         // given
-        LocalDateTime currentLocalDateTime = LocalDateTime.of(2023, 7, 12, 3, 11, 1);
-        Instant instant = currentLocalDateTime.atZone(ZoneId.systemDefault()).toInstant();
-        Date currentDate = Date.from(instant);
-        AuthRequest authRequest = new AuthRequest(
-                100L, "127.0.0.1", currentDate
-        );
+        AuthRequest authRequest = new AuthRequest(100L, "127.0.0.1");
         String requestBody = objectMapper.writeValueAsString(authRequest);
 
         when(authService.reCreateAuthInfo(any(), any(), any())).thenReturn(
@@ -101,7 +92,50 @@ class AuthControllerTest {
         mockMvc.perform(get("/refresh")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken", is("access-token-by-refresh-token")));
+    }
+
+    @Test
+    @DisplayName("Refresh token 이 조회되지 않으면, 재 로그인을 유도한다.")
+    void re_create_access_token_fail_with_refresh_token() throws Exception {
+        // given
+        AuthRequest authRequest = new AuthRequest(100L, "127.0.0.1");
+        String requestBody = objectMapper.writeValueAsString(authRequest);
+
+        when(authService.reCreateAuthInfo(any(), any(), any())).thenThrow(
+                new NotFoundRefreshTokenException()
+        );
+
+        // when & then
+        mockMvc.perform(get("/refresh")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code", is(801)))
+                .andExpect(jsonPath("$.message", is("Refresh Token 이 존재하지 않습니다.")));
+    }
+
+    @Test
+    @DisplayName("refresh token 이 만료되었으면, 재 로그인을 유도한다.")
+    void re_create_access_token_fail_with_refresh_token_expired() throws Exception {
+        // given
+        AuthRequest authRequest = new AuthRequest(100L, "127.0.0.1");
+        String requestBody = objectMapper.writeValueAsString(authRequest);
+
+        when(authService.reCreateAuthInfo(any(), any(), any())).thenThrow(
+                new RefreshTokenExpiredException()
+        );
+
+        // when & then
+        mockMvc.perform(get("/refresh")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code", is(802)))
+                .andExpect(jsonPath("$.message", is("RefreshToken의 유효시간이 만료되었습니다.")));
     }
 }

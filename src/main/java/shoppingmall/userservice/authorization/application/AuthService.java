@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import shoppingmall.userservice.authorization.domain.JwtTokenProvider;
 import shoppingmall.userservice.authorization.domain.RefreshToken;
 import shoppingmall.userservice.authorization.domain.RefreshTokenRepository;
+import shoppingmall.userservice.authorization.exception.NotFoundRefreshTokenException;
+import shoppingmall.userservice.authorization.exception.RefreshTokenExpiredException;
 
 @RequiredArgsConstructor
 @Transactional
@@ -20,14 +22,21 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId, accessIp, currentDate);
 
-        refreshTokenRepository.save(new RefreshToken(userId, refreshToken));
+        saveRefreshToken(userId, refreshToken);
         return accessToken;
+    }
+
+    private void saveRefreshToken(Long userId, String refreshToken) {
+        if(refreshTokenRepository.existsById(userId)) {
+            refreshTokenRepository.deleteById(userId);
+        }
+        refreshTokenRepository.save(new RefreshToken(userId, refreshToken));
     }
 
     public String reCreateAuthInfo(Long userId, String accessIp, Date currentDate) {
         String refreshToken = findRefreshTokenBySubject(userId);
         if(!jwtTokenProvider.canUse(refreshToken)) {
-            throw new IllegalStateException("RefreshToken의 유효시간이 만료되었습니다.");
+            throw new RefreshTokenExpiredException();
         }
 
         return jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
@@ -35,9 +44,7 @@ public class AuthService {
 
     private String findRefreshTokenBySubject(Long userId) {
         RefreshToken entity = refreshTokenRepository.findById(userId)
-                .orElseThrow(
-                        () -> new IllegalArgumentException("RefreshToken 이 존재하지 않습니다.")
-                );
+                .orElseThrow(NotFoundRefreshTokenException::new);
         return entity.getRefreshToken();
     }
 }
