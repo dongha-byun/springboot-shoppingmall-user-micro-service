@@ -22,9 +22,9 @@ public class GatewayAuthenticationArgumentResolver implements HandlerMethodArgum
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
-        String xGatewaySubject = request.getHeader("X-GATEWAY-SUBJECT");
+        String xGatewaySubject = request.getHeader(GatewayAuthConstants.X_GATEWAY_AUTH_HEADER);
         if(!StringUtils.hasText(xGatewaySubject)) {
-            throw new IllegalArgumentException("Gateway Subject is not exists!");
+            throw new IllegalArgumentException("Gateway Auth Header is not exists!");
         }
 
         return new GatewayAuthInfo(Long.parseLong(xGatewaySubject));

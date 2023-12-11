@@ -34,6 +34,7 @@ import shoppingmall.userservice.user.application.dto.FindPwResponseDto;
 import shoppingmall.userservice.user.application.dto.UserDto;
 import shoppingmall.userservice.user.application.dto.UserGradeInfoDto;
 import shoppingmall.userservice.user.domain.UserGrade;
+import shoppingmall.userservice.user.presentation.argumentresolver.GatewayAuthConstants;
 import shoppingmall.userservice.user.presentation.request.FindEmailRequest;
 import shoppingmall.userservice.user.presentation.request.FindPwRequest;
 import shoppingmall.userservice.user.presentation.request.SignUpRequest;
@@ -117,7 +118,10 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is("이미 가입된 정보가 있습니다.")))
-                .andDo(document("signUp_fail_duplicate_email"))
+                .andDo(document("signUp_fail_duplicate_email",
+                        responseFields(
+                                fieldWithPath("message").description("실패 원인")
+                        )))
         ;
     }
 
@@ -206,7 +210,7 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users")
-                        .header("X-GATEWAY-SUBJECT", 100L)
+                        .header("X-GATEWAY-AUTH-HEADER", 100L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -275,7 +279,8 @@ public class UserControllerTest {
         );
 
         // when & then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{id}/grade-info", 1000L)
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/grade-info")
+                        .header(GatewayAuthConstants.X_GATEWAY_AUTH_HEADER, 1000)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -285,9 +290,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("currentUserGrade", is("단골회원")))
                 .andExpect(jsonPath("nextUserGrade", is("VIP")))
                 .andDo(document("find_user_grade_info",
-                        pathParameters(
-                                parameterWithName("id").description("사용자 고유 ID")
-                        ),
                         responseFields(
                                 fieldWithPath("userId").description("사용자 고유 ID"),
                                 fieldWithPath("userName").description("사용자 이름"),
@@ -301,4 +303,5 @@ public class UserControllerTest {
                 ))
         ;
     }
+
 }

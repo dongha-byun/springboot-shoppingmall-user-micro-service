@@ -84,9 +84,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/users/{id}/grade-info")
-    public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(@PathVariable("id") Long userId) {
-        UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(userId);
+    @GetMapping("/users/grade-info")
+    public ResponseEntity<UserGradeInfoResponse> findUserGradeInfo(@GatewayAuthentication GatewayAuthInfo authInfo) {
+        UserGradeInfoDto userGradeInfo = userService.getUserGradeInfo(authInfo.userId());
         UserGradeInfoResponse response = UserGradeInfoResponse.to(userGradeInfo);
         return ResponseEntity.ok(response);
     }
