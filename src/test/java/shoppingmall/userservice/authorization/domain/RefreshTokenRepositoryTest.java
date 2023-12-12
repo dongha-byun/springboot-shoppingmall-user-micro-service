@@ -19,53 +19,45 @@ class RefreshTokenRepositoryTest {
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
 
-    @Autowired
-    UserRepository userRepository;
-
-    User saveUser;
+    String accessToken = "accessToken";
+    String refreshToken = "refreshToken";
 
     @BeforeEach
     void beforeEach(){
-        saveUser = userRepository.save(
-                User.builder()
-                        .userName("테스터")
-                        .email("tester@test.com")
-                        .password("tester1!")
-                        .telNo("010-1234-1234")
-                        .build()
-        );
         refreshTokenRepository.save(
                 RefreshToken.builder()
-                        .userId(saveUser.getId())
-                        .refreshToken("refreshToken")
+                        .refreshToken(refreshToken)
+                        .accessToken(accessToken)
                         .build()
         );
     }
 
     @Test
-    @DisplayName("특정 사용자의 refresh token 을 조회한다.")
+    @DisplayName("만료된 access token 을 통해 refresh token 을 조회한다.")
     void findByUserTest(){
         // given
 
         // when
-        RefreshToken refreshToken = refreshTokenRepository.findById(saveUser.getId())
+        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(accessToken)
                 .orElseThrow(IllegalArgumentException::new);
 
         // then
-        assertThat(refreshToken.getUserId()).isEqualTo(saveUser.getId());
-        assertThat(refreshToken.getRefreshToken()).isNotNull();
+        assertThat(refreshToken.getAccessToken()).isEqualTo("accessToken");
+        assertThat(refreshToken.getRefreshToken()).isEqualTo("refreshToken");
     }
 
     @Test
-    @DisplayName("특정 사용자의 refresh token 을 삭제한다.")
+    @DisplayName("access token 을 통해 refresh token 을 삭제한다.")
     void deleteByUserTest(){
         // given
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByAccessToken(accessToken)
+                .orElseThrow();
 
         // when
-        refreshTokenRepository.deleteById(saveUser.getId());
+        refreshTokenRepository.delete(refreshTokenEntity);
 
         // then
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findById(saveUser.getId());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByAccessToken(accessToken);
         assertThat(refreshToken.isPresent()).isFalse();
     }
 

@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @Getter
 public class AuthRequest {
     private Long userId;
-    private String accessIp;
 }

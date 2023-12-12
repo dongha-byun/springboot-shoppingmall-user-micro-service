@@ -36,7 +36,7 @@ class AuthServiceTest {
         String accessToken = authService.createAuthInfo(100L, "127.0.0.1", currentDate);
 
         // then
-        RefreshToken refreshToken = refreshTokenRepository.findById(100L).orElseThrow();
+        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(accessToken).orElseThrow();
 
         assertThat(accessToken).isNotNull();
         assertThat(refreshToken).isNotNull();
@@ -49,13 +49,13 @@ class AuthServiceTest {
         LocalDateTime createLocalDateTime = LocalDateTime.now().minusMinutes(10);
         Instant createInstant = createLocalDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Date createDate = Date.from(createInstant);
-        authService.createAuthInfo(100L, "127.0.0.1", createDate);
+        String accessToken = authService.createAuthInfo(100L, "127.0.0.1", createDate);
 
         // when
         LocalDateTime reCreateLocalDateTime = createLocalDateTime.plusMinutes(10);
         Instant reCreateInstant = reCreateLocalDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Date reCreateDate = Date.from(reCreateInstant);
-        String newAccessToken = authService.reCreateAuthInfo(100L, "127.0.0.1", reCreateDate);
+        String newAccessToken = authService.reCreateAuthInfo(accessToken, "127.0.0.1", reCreateDate);
 
         // then
         assertThat(newAccessToken).isNotNull();
@@ -68,11 +68,11 @@ class AuthServiceTest {
         LocalDateTime createLocalDateTime = LocalDateTime.now().minusDays(14);
         Instant createInstant = createLocalDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Date createDate = Date.from(createInstant);
-        authService.createAuthInfo(100L, "127.0.0.1", createDate);
+        String accessToken = authService.createAuthInfo(100L, "127.0.0.1", createDate);
 
         // when & then
         assertThatThrownBy(
-                () -> authService.reCreateAuthInfo(100L, "127.0.0.1", new Date())
+                () -> authService.reCreateAuthInfo(accessToken, "127.0.0.1", new Date())
         ).isInstanceOf(RefreshTokenExpiredException.class);
     }
 
@@ -83,7 +83,9 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(
-                () -> authService.reCreateAuthInfo(100L, "127.0.0.1", new Date())
+                () -> authService.reCreateAuthInfo(
+                        "access-token-with-no-refresh-token", "127.0.0.1", new Date()
+                )
         ).isInstanceOf(NotFoundRefreshTokenException.class);
     }
 }

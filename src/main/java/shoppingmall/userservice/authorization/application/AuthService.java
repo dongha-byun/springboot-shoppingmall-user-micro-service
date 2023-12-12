@@ -22,29 +22,33 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId, accessIp, currentDate);
 
-        saveRefreshToken(userId, refreshToken);
+        saveRefreshToken(refreshToken, accessToken);
         return accessToken;
     }
 
-    private void saveRefreshToken(Long userId, String refreshToken) {
-        if(refreshTokenRepository.existsById(userId)) {
-            refreshTokenRepository.deleteById(userId);
+    private void saveRefreshToken(String refreshToken, String accessToken) {
+        if(refreshTokenRepository.existsById(refreshToken)) {
+            refreshTokenRepository.deleteById(refreshToken);
         }
-        refreshTokenRepository.save(new RefreshToken(userId, refreshToken));
+        refreshTokenRepository.save(new RefreshToken(refreshToken, accessToken));
     }
 
-    public String reCreateAuthInfo(Long userId, String accessIp, Date currentDate) {
-        String refreshToken = findRefreshTokenBySubject(userId);
+    public String reCreateAuthInfo(String accessToken, String accessIp, Date currentDate) {
+        RefreshToken refreshTokenEntity = findRefreshTokenBy(accessToken);
+        String refreshToken = refreshTokenEntity.getRefreshToken();
         if(!jwtTokenProvider.canUse(refreshToken)) {
             throw new RefreshTokenExpiredException();
         }
 
-        return jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
+        Long userId = jwtTokenProvider.getUserId(refreshToken);
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId, accessIp, currentDate);
+        refreshTokenEntity.changeAccessToken(newAccessToken);
+
+        return newAccessToken;
     }
 
-    private String findRefreshTokenBySubject(Long userId) {
-        RefreshToken entity = refreshTokenRepository.findById(userId)
+    private RefreshToken findRefreshTokenBy(String accessToken) {
+        return refreshTokenRepository.findByAccessToken(accessToken)
                 .orElseThrow(NotFoundRefreshTokenException::new);
-        return entity.getRefreshToken();
     }
 }
