@@ -14,11 +14,11 @@ import shoppingmall.userservice.user.api.presentation.response.ResponseUserInfoH
 import shoppingmall.userservice.user.domain.UserGrade;
 
 @RestController
-public class UserCouponAPIController {
+public class UserMicroServiceController {
 
     private final UserQueryDAO userQueryDAO;
 
-    public UserCouponAPIController(UserQueryDAO userQueryDAO) {
+    public UserMicroServiceController(UserQueryDAO userQueryDAO) {
         this.userQueryDAO = userQueryDAO;
     }
 

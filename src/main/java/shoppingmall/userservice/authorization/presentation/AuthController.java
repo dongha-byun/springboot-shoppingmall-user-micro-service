@@ -11,11 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import shoppingmall.userservice.authorization.application.AuthService;
 import shoppingmall.userservice.authorization.presentation.request.AuthRequest;
 import shoppingmall.userservice.authorization.presentation.response.AuthResponse;
-import shoppingmall.userservice.user.presentation.argumentresolver.AccessToken;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,8 +36,8 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(accessToken));
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@AccessToken String accessToken,
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestHeader("expire-token") String accessToken,
                                                 HttpServletRequest request) {
         String newAccessToken = authService.reCreateAuthInfo(
                 accessToken, request.getRemoteAddr(), new Date()

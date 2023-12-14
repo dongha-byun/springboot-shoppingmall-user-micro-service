@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import shoppingmall.userservice.authorization.application.AuthService;
 import shoppingmall.userservice.login.client.response.ResponseAuthInfo;
 
