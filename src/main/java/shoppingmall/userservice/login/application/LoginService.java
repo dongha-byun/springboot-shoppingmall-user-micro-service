@@ -23,7 +23,7 @@ public class LoginService {
     public String login(String email, String password, String accessIp) throws WrongPasswordException {
         User user = userRepository.findUserByLoginInfoEmail(email)
                 .orElseThrow(
-                        () -> new NotExistsEmailException("이메일이 존재하지 않습니다.")
+                        NotExistsEmailException::new
                 );
         validateLogin(password, user);
 
