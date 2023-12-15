@@ -88,7 +88,7 @@ class AuthControllerTest {
         );
 
         // when & then
-        mockMvc.perform(get("/refresh")
+        mockMvc.perform(post("/refresh")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
                 .andDo(print())
@@ -108,7 +108,7 @@ class AuthControllerTest {
         );
 
         // when & then
-        mockMvc.perform(get("/refresh")
+        mockMvc.perform(post("/refresh")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
                 .andDo(print())
@@ -129,7 +129,7 @@ class AuthControllerTest {
         );
 
         // when & then
-        mockMvc.perform(get("/refresh")
+        mockMvc.perform(post("/refresh")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
                 .andDo(print())
