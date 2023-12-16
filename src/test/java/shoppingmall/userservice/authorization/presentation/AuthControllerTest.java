@@ -89,6 +89,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(post("/refresh")
+                        .header("expire-token", "expired-token")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
                 .andDo(print())
@@ -109,6 +110,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(post("/refresh")
+                        .header("expire-token", "expired-token")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
                 .andDo(print())
@@ -130,11 +132,28 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(post("/refresh")
+                        .header("expire-token", "expire-access-token")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code", is(802)))
                 .andExpect(jsonPath("$.message", is("RefreshToken의 유효시간이 만료되었습니다.")));
+    }
+
+
+    @Test
+    @DisplayName("로그아웃을 한다.")
+    void logout() throws Exception {
+        // given
+
+        doNothing().when(authService).logout(any());
+
+        // when & then
+        mockMvc.perform(post("/logout")
+                        .header("expire-token", "alive-token")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 }

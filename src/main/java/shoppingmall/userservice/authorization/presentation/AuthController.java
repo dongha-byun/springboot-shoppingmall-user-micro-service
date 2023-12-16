@@ -46,6 +46,13 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(newAccessToken));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader("expire-token") String accessToken) {
+        authService.logout(accessToken);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/test-cookie")
     public String testCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();

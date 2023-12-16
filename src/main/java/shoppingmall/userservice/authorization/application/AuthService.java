@@ -51,4 +51,8 @@ public class AuthService {
         return refreshTokenRepository.findByAccessToken(accessToken)
                 .orElseThrow(NotFoundRefreshTokenException::new);
     }
+
+    public void logout(String accessToken) {
+        refreshTokenRepository.deleteByAccessToken(accessToken);
+    }
 }

@@ -48,17 +48,14 @@ class RefreshTokenRepositoryTest {
 
     @Test
     @DisplayName("access token 을 통해 refresh token 을 삭제한다.")
-    void deleteByUserTest(){
+    void delete_by_access_token(){
         // given
-        RefreshToken refreshTokenEntity = refreshTokenRepository.findByAccessToken(accessToken)
-                .orElseThrow();
 
         // when
-        refreshTokenRepository.delete(refreshTokenEntity);
+        refreshTokenRepository.deleteByAccessToken(accessToken);
 
         // then
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByAccessToken(accessToken);
         assertThat(refreshToken.isPresent()).isFalse();
     }
-
 }

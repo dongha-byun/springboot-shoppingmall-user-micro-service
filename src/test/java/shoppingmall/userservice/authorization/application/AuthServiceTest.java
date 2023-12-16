@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,25 @@ class AuthServiceTest {
                         "access-token-with-no-refresh-token", "127.0.0.1", new Date()
                 )
         ).isInstanceOf(NotFoundRefreshTokenException.class);
+    }
+
+    @Test
+    @DisplayName("로그아웃을 하는 경우, 저장되어있는 refresh token 정보를 삭제한다.")
+    void logout() {
+        // 기존에 token 발급이 되어 있음
+        // given
+        refreshTokenRepository.save(
+                new RefreshToken(
+                        "refresh-token",
+                        "access-token"
+                )
+        );
+
+        // when
+        authService.logout("access-token");
+
+        // then
+        Optional<RefreshToken> findToken = refreshTokenRepository.findByAccessToken("access-token");
+        assertThat(findToken.isPresent()).isFalse();
     }
 }
