@@ -46,4 +46,15 @@ public class JPAUserQueryDAO implements UserQueryDAO {
                 )
                 .fetch();
     }
+
+    @Override
+    public UserGrade getUserGradeOf(Long userId) {
+        return jpaQueryFactory
+                .select(user.userGradeInfo.grade)
+                .from(user)
+                .where(
+                        user.id.eq(userId)
+                )
+                .fetchOne();
+    }
 }

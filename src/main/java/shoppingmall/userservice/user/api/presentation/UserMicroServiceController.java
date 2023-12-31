@@ -3,6 +3,7 @@ package shoppingmall.userservice.user.api.presentation;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,5 +39,14 @@ public class UserMicroServiceController {
         List<Long> userIdsAboveGrade = userQueryDAO.getUserIdsAboveGrade(userGrade);
 
         return ResponseEntity.ok().body(userIdsAboveGrade);
+    }
+
+    @GetMapping("/users/{userId}/discount-rate")
+    public ResponseEntity<Integer> getDiscountRate(@PathVariable("userId") Long userId) {
+        UserGrade userGrade = userQueryDAO.getUserGradeOf(userId);
+        if(userGrade == null) {
+            throw new IllegalStateException("등급 정보 조회에 실패했습니다.");
+        }
+        return ResponseEntity.ok(userGrade.getDiscountRate());
     }
 }
