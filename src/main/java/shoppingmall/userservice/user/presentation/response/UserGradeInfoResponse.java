@@ -19,8 +19,10 @@ public class UserGradeInfoResponse {
     private String nextUserGrade;
     private int remainedOrderCountForNextGrade;
     private int remainedAmountsForNextGrade;
+    private String logoUrl;
 
     public static UserGradeInfoResponse to(UserGradeInfoDto dto) {
+        String logoUrlPrefix = "/images/logo/grade/";
         UserGrade nextGrade = dto.getNextUserGrade();
         if(nextGrade == null) {
             return new UserGradeInfoResponse(
@@ -28,9 +30,8 @@ public class UserGradeInfoResponse {
                     DateUtils.toStringOfLocalDateTIme(dto.getSignUpDate(), "yyyy-MM-dd"),
                     dto.getCurrentUserGrade().getGradeName(),
                     dto.getCurrentUserGrade().getDiscountRate(),
-                    null,
-                    0,
-                    0
+                    null, 0, 0,
+                    logoUrlPrefix + dto.getLogo()
             );
         }
 
@@ -43,7 +44,8 @@ public class UserGradeInfoResponse {
                 dto.getCurrentUserGrade().getDiscountRate(),
                 nextGrade.getGradeName(),
                 remainedOrderCountForNextGrade,
-                remainedAmountsForNextGrade
+                remainedAmountsForNextGrade,
+                logoUrlPrefix + dto.getLogo()
         );
 
     }

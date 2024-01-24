@@ -19,6 +19,7 @@ public class UserGradeInfoDto {
     private UserGrade nextUserGrade;
     private int orderCount;
     private int amount;
+    private String logo;
 
     public static UserGradeInfoDto of(User user) {
         UserGradeInfo userGradeInfo = user.getUserGradeInfo();
@@ -26,7 +27,8 @@ public class UserGradeInfoDto {
                 user.getId(), user.getUserName(),
                 user.getSignUpDate(), userGradeInfo.getGrade(),
                 userGradeInfo.getGrade().nextGrade().orElse(null),
-                userGradeInfo.getOrderCount(), userGradeInfo.getAmount()
+                userGradeInfo.getOrderCount(), userGradeInfo.getAmount(),
+                userGradeInfo.getGrade().getLogo()
         );
     }
 }

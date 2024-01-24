@@ -7,8 +7,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -210,7 +208,7 @@ public class UserControllerTest {
 
         // when & then
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users")
-                        .header("X-GATEWAY-AUTH-HEADER", 100L)
+                        .header(GatewayAuthConstants.X_GATEWAY_AUTH_HEADER, 100L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -274,7 +272,7 @@ public class UserControllerTest {
                         1000L, "사용자1000",
                         LocalDateTime.of(2022, 12, 22, 0, 0, 0),
                         UserGrade.REGULAR, UserGrade.VIP,
-                        50, 10000
+                        50, 10000, "silver.png"
                 )
         );
 
@@ -287,8 +285,9 @@ public class UserControllerTest {
                 .andExpect(jsonPath("userId", is(1000)))
                 .andExpect(jsonPath("userName", is("사용자1000")))
                 .andExpect(jsonPath("signUpDate", is("2022-12-22")))
-                .andExpect(jsonPath("currentUserGrade", is("단골회원")))
-                .andExpect(jsonPath("nextUserGrade", is("VIP")))
+                .andExpect(jsonPath("currentUserGrade", is("실버")))
+                .andExpect(jsonPath("nextUserGrade", is("골드")))
+                .andExpect(jsonPath("logoUrl", is("/images/logo/grade/silver.png")))
                 .andDo(document("find_user_grade_info",
                         responseFields(
                                 fieldWithPath("userId").description("사용자 고유 ID"),
@@ -297,6 +296,7 @@ public class UserControllerTest {
                                 fieldWithPath("currentUserGrade").description("현재 회원등급"),
                                 fieldWithPath("gradeDiscountRate").description("등급 할인율"),
                                 fieldWithPath("nextUserGrade").description("다음 회원등급"),
+                                fieldWithPath("logo").description("등급 이미지"),
                                 fieldWithPath("remainedOrderCountForNextGrade").description("다음 회원등급 승급까지 남은 주문 수"),
                                 fieldWithPath("remainedAmountsForNextGrade").description("다음 회원등급 승급까지 남은 주문 금액")
                         )
