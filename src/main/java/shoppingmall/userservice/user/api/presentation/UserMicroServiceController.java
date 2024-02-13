@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import shoppingmall.userservice.user.api.dao.UserQueryDAO;
 import shoppingmall.userservice.user.api.dao.dto.UserInfoDto;
 import shoppingmall.userservice.user.api.presentation.request.RequestUserInfo;
+import shoppingmall.userservice.user.api.presentation.response.ResponseOrderUserInformation;
 import shoppingmall.userservice.user.api.presentation.response.ResponseUserInfoHasCoupon;
 import shoppingmall.userservice.user.domain.UserGrade;
 
@@ -49,4 +50,16 @@ public class UserMicroServiceController {
         }
         return ResponseEntity.ok(userGrade.getDiscountRate());
     }
+
+    @PostMapping("/orders/users")
+    public ResponseEntity<List<ResponseOrderUserInformation>> getUsersOfOrders(@RequestBody List<Long> userIds) {
+        List<UserInfoDto> users = userQueryDAO.getUsers(userIds);
+        List<ResponseOrderUserInformation> result = users.stream()
+                .map(
+                        ResponseOrderUserInformation::of
+                ).toList();
+
+        return ResponseEntity.ok(result);
+    }
+
 }

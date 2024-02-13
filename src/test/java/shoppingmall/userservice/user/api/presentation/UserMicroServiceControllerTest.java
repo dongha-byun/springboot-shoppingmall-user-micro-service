@@ -1,6 +1,8 @@
 package shoppingmall.userservice.user.api.presentation;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -56,9 +58,9 @@ class UserMicroServiceControllerTest {
 
         when(userQueryDAO.getUsers(any())).thenReturn(
                 Arrays.asList(
-                        new UserInfoDto(10L, "사용자 10", UserGrade.NORMAL),
-                        new UserInfoDto(20L, "사용자 20", UserGrade.VIP),
-                        new UserInfoDto(30L, "사용자 30", UserGrade.NORMAL)
+                        new UserInfoDto(10L, "사용자 10", "010-1234-1234", UserGrade.NORMAL),
+                        new UserInfoDto(20L, "사용자 20", "010-2345-2345", UserGrade.VIP),
+                        new UserInfoDto(30L, "사용자 30", "010-3456-3456", UserGrade.NORMAL)
                 )
         );
 
@@ -104,5 +106,27 @@ class UserMicroServiceControllerTest {
         mockMvc.perform(get("/users/{userId}/discount-rate", 10))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", is(1)));
+    }
+
+    @Test
+    @DisplayName("상품을 주문한 회원들의 정보를 조회한다.")
+    void getUsersOfOrders() throws Exception {
+        // given
+        String requestBody = objectMapper.writeValueAsString(Arrays.asList(10L, 20L, 30L));
+
+        when(userQueryDAO.getUsers(any())).thenReturn(
+                Arrays.asList(
+                        new UserInfoDto(10L, "사용자 10", "010-1234-1234", UserGrade.NORMAL),
+                        new UserInfoDto(20L, "사용자 20", "010-2345-2345", UserGrade.VIP),
+                        new UserInfoDto(30L, "사용자 30", "010-3456-3456", UserGrade.NORMAL)
+                )
+        );
+
+        // when & then
+        mockMvc.perform(post("/orders/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$..userId", hasItems(10, 20, 30)));
     }
 }

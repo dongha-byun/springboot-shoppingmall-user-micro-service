@@ -26,7 +26,8 @@ public class JPAUserQueryDAO implements UserQueryDAO {
                 .select(
                         Projections.constructor(
                                 UserInfoDto.class,
-                                user.id, user.userName, user.userGradeInfo.grade
+                                user.id, user.userName, user.telNo,
+                                user.userGradeInfo.grade
                         )
                 )
                 .from(user)
