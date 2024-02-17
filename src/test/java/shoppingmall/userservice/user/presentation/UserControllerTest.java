@@ -296,7 +296,7 @@ public class UserControllerTest {
                                 fieldWithPath("currentUserGrade").description("현재 회원등급"),
                                 fieldWithPath("gradeDiscountRate").description("등급 할인율"),
                                 fieldWithPath("nextUserGrade").description("다음 회원등급"),
-                                fieldWithPath("logo").description("등급 이미지"),
+                                fieldWithPath("logoUrl").description("회원등급 로고 이미지 경로"),
                                 fieldWithPath("remainedOrderCountForNextGrade").description("다음 회원등급 승급까지 남은 주문 수"),
                                 fieldWithPath("remainedAmountsForNextGrade").description("다음 회원등급 승급까지 남은 주문 금액")
                         )

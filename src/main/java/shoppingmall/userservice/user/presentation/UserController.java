@@ -1,8 +1,11 @@
 package shoppingmall.userservice.user.presentation;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,5 +100,11 @@ public class UserController {
         LoginUserResponse response = LoginUserResponse.of(loginUserDto);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/images/logo/grade/{fileName}")
+    public Resource gradeLogo(@PathVariable("fileName") String fileName) throws MalformedURLException {
+        String path = "/Users/byundongha/byun/spring/file_dir/shopping_upload/image/grade/";
+        return new UrlResource("file:" + path + fileName);
     }
 }
