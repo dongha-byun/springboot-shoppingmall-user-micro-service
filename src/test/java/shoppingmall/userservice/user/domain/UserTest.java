@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class UserTest {
 
     @Test
-    @DisplayName("사용자 정보 수정 테스트")
+    @DisplayName("사용자 정보를 수정한다.")
     void editUserTest() {
         // 사용자 정보에서 이름/아이디 는 변경할 수 없다.
         // given
@@ -72,5 +72,20 @@ class UserTest {
         // then
         assertThat(nextUserGrade.isPresent()).isTrue();
         assertThat(nextUserGrade.get().getGradeName()).isEqualTo(UserGrade.REGULAR.getGradeName());
+    }
+
+    @Test
+    @DisplayName("사용자의 주문횟수, 주문누적액을 증가시킨다.")
+    void increase_order_amount() {
+        // given
+        User user = new User("테스터", "tester@test.com", "tester1!", "010-1234-1234");
+
+        // when
+        user.increaseOrderAmount(19900);
+
+        // then
+        UserGradeInfo userGradeInfo = user.getUserGradeInfo();
+        assertThat(userGradeInfo.getAmount()).isEqualTo(19900);
+        assertThat(userGradeInfo.getOrderCount()).isEqualTo(1);
     }
 }

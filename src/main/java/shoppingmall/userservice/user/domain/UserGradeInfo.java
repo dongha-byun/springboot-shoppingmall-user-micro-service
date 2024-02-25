@@ -30,6 +30,6 @@ public class UserGradeInfo {
 
     public void increaseOrderAmount(int amount) {
         this.orderCount++;
-        this.amount = amount;
+        this.amount += amount;
     }
 }
