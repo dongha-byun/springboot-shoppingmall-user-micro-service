@@ -3,10 +3,13 @@ package shoppingmall.userservice.user.api.presentation;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
@@ -27,8 +30,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import shoppingmall.userservice.user.api.application.UserMicroServiceService;
 import shoppingmall.userservice.user.api.dao.UserQueryDAO;
 import shoppingmall.userservice.user.api.dao.dto.UserInfoDto;
+import shoppingmall.userservice.user.api.presentation.request.RequestIncreaseOrderAmounts;
 import shoppingmall.userservice.user.api.presentation.request.RequestUserInfo;
 import shoppingmall.userservice.user.domain.UserGrade;
 
@@ -46,6 +51,9 @@ class UserMicroServiceControllerTest {
 
     @MockBean
     UserQueryDAO userQueryDAO;
+
+    @MockBean
+    UserMicroServiceService service;
 
     @Test
     @DisplayName("쿠폰을 발급받은 사용자들의 정보를 id로 조회한다.")
@@ -128,5 +136,22 @@ class UserMicroServiceControllerTest {
                         .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..userId", hasItems(10, 20, 30)));
+    }
+
+    @Test
+    @DisplayName("상품 구매자의 주문횟수를 1회 늘리고, 주문누적액을 주어진 금액만큼 추가한다.")
+    void increase_order_amounts() throws Exception {
+        // given
+        Long userId = 10L;
+        RequestIncreaseOrderAmounts requestIncreaseOrderAmounts = new RequestIncreaseOrderAmounts(20000);
+        String requestBody = objectMapper.writeValueAsString(requestIncreaseOrderAmounts);
+
+        doNothing().when(service).increaseOrderAmounts(userId, requestIncreaseOrderAmounts.amounts());
+
+        // when & then
+        mockMvc.perform(patch("/users/{userId}/order-amounts", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk());
     }
 }

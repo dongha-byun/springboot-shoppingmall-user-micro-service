@@ -1,28 +1,30 @@
 package shoppingmall.userservice.user.api.presentation;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import shoppingmall.userservice.user.api.application.UserMicroServiceService;
 import shoppingmall.userservice.user.api.dao.UserQueryDAO;
 import shoppingmall.userservice.user.api.dao.dto.UserInfoDto;
+import shoppingmall.userservice.user.api.presentation.request.RequestIncreaseOrderAmounts;
 import shoppingmall.userservice.user.api.presentation.request.RequestUserInfo;
 import shoppingmall.userservice.user.api.presentation.response.ResponseOrderUserInformation;
 import shoppingmall.userservice.user.api.presentation.response.ResponseUserInfoHasCoupon;
 import shoppingmall.userservice.user.domain.UserGrade;
 
+@RequiredArgsConstructor
 @RestController
 public class UserMicroServiceController {
 
     private final UserQueryDAO userQueryDAO;
-
-    public UserMicroServiceController(UserQueryDAO userQueryDAO) {
-        this.userQueryDAO = userQueryDAO;
-    }
+    private final UserMicroServiceService service;
 
     @PostMapping("/users/has-coupon")
     public ResponseEntity<List<ResponseUserInfoHasCoupon>> getUsersHasCoupon(@RequestBody RequestUserInfo requestUserInfo) {
@@ -62,4 +64,10 @@ public class UserMicroServiceController {
         return ResponseEntity.ok(result);
     }
 
+    @PatchMapping("/users/{userId}/order-amounts")
+    public ResponseEntity<Void> increaseOrderAmounts(@PathVariable("userId") Long userId,
+                                                     @RequestBody RequestIncreaseOrderAmounts requestIncreaseOrderAmounts) {
+        service.increaseOrderAmounts(userId, requestIncreaseOrderAmounts.amounts());
+        return ResponseEntity.ok().build();
+    }
 }
