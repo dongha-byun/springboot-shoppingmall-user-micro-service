@@ -1,13 +1,22 @@
-# 사용자 / 인증 관련 마이크로 서비스
+## 온라인 쇼핑몰 플랫폼 회원/인증 서비스
 
-## 1. 개요
-* 회원가입/로그인/이메일 및 비밀번호 찾기 등 일반 사용자의 계정과 관련된 업무를 수행하는 도메인 
-* 로그인을 통한 Access Token 생성 및 Refresh Token 관리를 JWT 라이브러리를 통해 수행
+### 0. 소개
+* 온라인 쇼핑몰 플랫폼 내 회원정보 관리 및 인증을 담당하는 서비스
+* Access Token 과 Refresh Token 을 활용한 JWT 토큰 방식으로 인증 수행
 
-## 2. 아키텍처 구조
-* 이미지 첨부 예정
+### 1. 개발 환경
+* Java 17
+* SpringBoot 3.1
+* Spring Data JPA / QueryDSL
+* JWT
+* H2
+* JUnit 5
 
-## 3. API 목록
-* http://api.shoppingmall.com/docs/user.html
-* http://api.shoppingmall.com/docs/login.html
-* http://api.shoppingmall.com/docs/auth.html
+### 2. 주요 구현 기능
+* 회원가입 시, 이메일 발송을 통한 본인인증 절차
+  * 이메일 발송은 별도의 Mail Worker 프로젝트에서 처리
+  * 인증번호 생성 후, kafka 를 통해 이메일 발송을 비동기 처리
+* 로그인 시, JWT 방식을 통한 인증방식 처리
+  * 최초 로그인 시, Access Token 발급 및 Refresh Token 저장
+  * Access Token 만료 시, Refresh Token 을 조회하여 새 Access Token 재발급
+  * Refresh Token 만료 시, 로그아웃 처리
