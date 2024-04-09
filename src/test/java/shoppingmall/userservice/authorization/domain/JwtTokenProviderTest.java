@@ -73,4 +73,21 @@ class JwtTokenProviderTest {
         assertThat(jwtTokenProvider.canUse(canNotUseToken)).isFalse();
     }
 
+    @Test
+    @DisplayName("Access Token 은 Payload 로 회원정보와 접속정보를 가진다.")
+    void access_token_has_payload_user_id_and_access_ip() {
+        // given
+        Date currentDate = new Date();
+        String accessIp = "192.1.2.10";
+
+        // when
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), accessIp, currentDate);
+
+        // then
+        Long userId = jwtTokenProvider.getUserId(accessToken);
+        String accessIpInToken = jwtTokenProvider.getAccessIp(accessToken);
+
+        assertThat(userId).isEqualTo(user.getId());
+        assertThat(accessIpInToken).isEqualTo("192.1.2.10");
+    }
 }

@@ -15,23 +15,26 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
+    private static final String CLAIM_ACCESS_IP = "accessIp";
 
     @Value("${auth.jwt.key}")
     private String key;
 
+
     private final JwtTokenExpireDurationStrategy jwtTokenExpireDurationStrategy;
 
     public String createAccessToken(Long userId, String accessIp, Date date) {
-        return generateToken(userId, jwtTokenExpireDurationStrategy.getAccessTokenExpireDuration(), date);
+        return generateToken(userId, jwtTokenExpireDurationStrategy.getAccessTokenExpireDuration(), accessIp, date);
     }
 
     public String createRefreshToken(Long userId, String accessIp, Date date){
-        return generateToken(userId, jwtTokenExpireDurationStrategy.getRefreshTokenExpireDuration(), date);
+        return generateToken(userId, jwtTokenExpireDurationStrategy.getRefreshTokenExpireDuration(), accessIp, date);
     }
 
-    private String generateToken(Long userId, long expireTime, Date currentDate) {
+    private String generateToken(Long userId, long expireTime, String accessIp, Date currentDate) {
         return Jwts.builder()
                 .subject(userId.toString())
+                .claim(CLAIM_ACCESS_IP, accessIp)
                 .issuedAt(currentDate)
                 .expiration(new Date(currentDate.getTime() + expireTime))
                 .signWith(secretKey())
@@ -41,6 +44,10 @@ public class JwtTokenProvider {
     public Long getUserId(String token) {
         String subject = getBodyOfToken(token).getSubject();
         return Long.parseLong(subject);
+    }
+
+    public String getAccessIp(String token) {
+        return (String) getBodyOfToken(token).get(CLAIM_ACCESS_IP);
     }
 
     // jwt 토큰 유효성 체크
